@@ -1,10 +1,5 @@
 //@ts-check
-
 'use strict'
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const { EnvironmentPlugin } = require('webpack')
-const copyPlugin = require('copy-webpack-plugin')
 const path = require('path')
 
 //@ts-check
@@ -52,12 +47,7 @@ const extensionConfig = {
     // @ts-ignore
     new EnvironmentPlugin({
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      FLUENTFFMPEG_COV: '',
-    }),
-    new copyPlugin({
-      patterns: [
-        { from: '.env' }
-      ]
+      FLUENTFFMPEG_COV: ''
     })
   ]
 }

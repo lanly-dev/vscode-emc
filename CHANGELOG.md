@@ -4,6 +4,9 @@ All notable changes to the "Easy Media Converter" extension will be documented i
 
 Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how to structure this file.
 
+## [0.1] - March 2022
+-
+
 ## [0.0.1] - January 2022
 - Initial release
 - webpack 5.68.0 compiled with 3 warnings in 15580 ms
