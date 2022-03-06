@@ -1,0 +1,16 @@
+.env
+.env.example
+.gitignore
+.token
+.vscode/**
+*.zip
+**/.eslintrc.json
+**/*.map
+**/*.ts
+**/tsconfig.json
+media/emc.svg
+node_modules/**
+package.bk.json
+src/**
+vsc-extension-quickstart.md
+webpack.config.js
