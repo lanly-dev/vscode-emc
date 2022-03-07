@@ -15,22 +15,27 @@ ffmpeg.setFfmpegPath(pathToFfmpeg)
 const { createOutputChannel, showErrorMessage, showInformationMessage } = window
 const pkg = require('ffmpeg-static/package.json')
 const channel = createOutputChannel('Easy Media Converter')
+const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class Converter {
 
   static async init() {
+    if (!fs.existsSync(pathToFfmpeg)) {
+      showInformationMessage(MSG)
+      this.printToChannel(MSG)
+    }
     this.printToChannel('Easy Media Converter activate successfully!')
   }
 
   static async download() {
     channel.show()
     if (!pathToFfmpeg) {
-      showErrorMessage('No binary found for the current architecture')
+      showErrorMessage('No binary found for the current OS architecture')
       return
     }
 
     if (fs.existsSync(pathToFfmpeg)) {
-      showInformationMessage('ffmpeg downloaded already')
+      showInformationMessage('The ffmpeg binary is already downloaded')
       return
     }
 
@@ -56,6 +61,14 @@ export default class Converter {
 
   static async convert({ fsPath, path }: Uri, type: 'mp3' | 'mp4') {
     channel.show()
+    if (!fs.existsSync(pathToFfmpeg)) {
+      const abortMsg = 'Converting action aborted'
+      showInformationMessage(MSG)
+      showInformationMessage(abortMsg)
+      this.printToChannel(MSG)
+      this.printToChannel(abortMsg)
+      return
+    }
     try {
       const inputSize = fs.statSync(fsPath).size
       this.printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)
@@ -91,10 +104,15 @@ export default class Converter {
         let totalKbps = 0
         let count1 = 0
         let count2 = 0
+        let totalTime = 0
 
         ffmpeg(input).format(type).save(output)
+          // these 2 events don't work after the 1st run
+          .on('codecData', ({ duration }) => totalTime = this.durationToSec(duration))
           .on('progress', (prog) => {
             const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
+            const time = this.durationToSec(timemark)
+            const percent = (time / totalTime) * 100
             if (!isNaN(fps) && fps > 0) {
               totalFps += fps
               avgFps = avgFps === 0 ? avgFps + fps : (avgFps + fps) / 2
@@ -112,15 +130,15 @@ export default class Converter {
             // const msg = `${frames}frame|${fps}fps|${kbps}kbps|${s}size|${timemark}timemark`
             // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
             // this.printToChannel(`[ffmpeg] ${msg}`)
-            progress.report({ message: timemark })
+            progress.report({ message: `${this.round(percent)}%` })
           })
           .on('error', (err) => {
             this.printToChannel(`[ffmpeg] error: ${err.message}`)
             reject(err)
           })
           .on('end', () => {
-            avgFps = this.round((avgFps + totalFps / count1) / 2)
-            avgKbps = this.round((avgKbps + totalKbps / count2) / 2)
+            avgFps = avgFps && totalFps ? this.round((avgFps + totalFps / count1) / 2) : -1
+            avgKbps = avgKbps && totalKbps ? this.round((avgKbps + totalKbps / count2) / 2) : -1
             this.printToChannel('[ffmpeg] finished')
             this.printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
             resolve()
@@ -166,6 +184,11 @@ export default class Converter {
     let s = Math.round(ms / 1000)
     if (s < 60) return `${s} sec`
     return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s
+  }
+
+  private static durationToSec(duration: string) {
+    const [hours, minutes, seconds] = duration.split(':')
+    return Number(hours) * 60 * 60 + Number(minutes) * 60 + Number(seconds)
   }
 
   //@ts-ignore

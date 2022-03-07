@@ -4,18 +4,21 @@ Or ever stump upon the need to convert quickly a media file for your game develo
 The answer is **YES❗**
 
 This is the extension that could help you with that job, and right inside the VS Code. How 😎🆒🧊!\
-It converts supported media files to mp3/mp4 format here and there 🎉.
+It converts supported media files to mp3/mp4 format, using *ffmpeg*, here and there 🎉.
 
 <img src='./media/emc.gif' width='450'/>
 
 ## Features
 - Supported audio formats: `wav | wma`
 - Supported video formats: `avi | wmv | flv | mkv`
+
 ## Known Issues
-- Best to keep the media file under 3MB for converting.
-- Due to file properties lost that's in transfer process method for bigger file, *ffmpeg* may not able to convert it.
+- The percentage progress indicator and average FPS and kbps won't be able to show/calculate for the consecutive runs that after the 1st conversion run
 
 ## Release Notes
+### 0.1.0
+- Use local binary instead Google Cloud Functions
+
 ### 0.0.1
 - Initial release of Easy Media Converter
 
