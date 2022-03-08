@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 
 ## [0.1.0] - March 2022
 - Use local ffmpeg binary for conversion
+- webpack 5.70.0 compiled with 1 warning in 5687 ms
+- 8 files, 101.1KB, 1.65.0
 
 ### Note
 - The `progress` and `codeData` events don't fire/emit for the runs that after the 1st run, the `fluent-ffmpeg` package's bug?
