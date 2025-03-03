@@ -112,8 +112,9 @@ export default class Converter {
   private static ffmpegConvert(type: string, input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
-      title: 'Converting'
-    }, (progress) => {
+      title: 'Converting',
+      cancellable: true
+    }, (progress, token) => {
       return new Promise<void>((resolve, reject) => {
         let avgFps = 0
         let avgKbps = 0
@@ -123,7 +124,7 @@ export default class Converter {
         let count2 = 0
         let totalTime = 0
 
-        ffmpeg(input).format(type).save(output)
+        const command = ffmpeg(input).format(type).save(output)
           .on('codecData', ({ duration }) => totalTime = this.durationToSec(duration))
           .on('progress', (prog) => {
             const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
@@ -147,6 +148,11 @@ export default class Converter {
             // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
             // this.printToChannel(`[ffmpeg] ${msg}`)
             progress.report({ message: `${this.round(percent)}%` })
+
+            if (token.isCancellationRequested) {
+              command.kill('SIGKILL')
+              return Promise.reject('User cancelled the operation')
+            }
           })
           .on('error', (err) => {
             this.printToChannel(`[ffmpeg] error: ${err.message}`)
