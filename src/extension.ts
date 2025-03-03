@@ -6,6 +6,7 @@ export function activate(context: ExtensionContext) {
   Converter.init()
   context.subscriptions.concat([
     rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, 'mp3')),
+    rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, 'wav')),
     rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, 'mp4')),
     rc('emc.download', () => Converter.download())
   ])

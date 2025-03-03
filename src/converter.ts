@@ -3,15 +3,17 @@ import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, Uri, window } from 'vscode'
 import { promisify } from 'util'
 import { resolve } from 'path'
+
+import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as stream from 'stream'
+
 import axios from 'axios'
-import ffmpeg = require('fluent-ffmpeg')
-import pathToFfmpeg = require('ffmpeg-static')
+import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-ffmpeg.setFfmpegPath(pathToFfmpeg)
+ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { createOutputChannel, showErrorMessage, showInformationMessage } = window
 const pkg = require('ffmpeg-static/package.json')
 const channel = createOutputChannel('Easy Media Converter')
@@ -20,7 +22,7 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 export default class Converter {
 
   static async init() {
-    if (!fs.existsSync(pathToFfmpeg)) {
+    if (!fs.existsSync(pathToFfmpeg!)) {
       showInformationMessage(MSG)
       this.printToChannel(MSG)
     }
@@ -35,33 +37,48 @@ export default class Converter {
     }
 
     if (fs.existsSync(pathToFfmpeg)) {
-      showInformationMessage('The ffmpeg binary is already downloaded')
+      const msg = 'The ffmpeg binary is already downloaded, located at: ' + pathToFfmpeg
+      showInformationMessage(msg)
+      this.printToChannel(msg)
       return
     }
 
-    const {
-      'ffmpeg-static': { 'binary-release-tag': rTag, 'binary-release-name': rName }
-    } = pkg
+    const { 'ffmpeg-static': { 'binary-release-tag': rTag } } = pkg
     const arch = os.arch()
     const platform = os.platform()
-    const release = rTag ?? rName
+    const release = rTag
     const baseUrl = `https://github.com/eugeneware/ffmpeg-static/releases/download/${release}`
-    const url = `${baseUrl}/${platform}-${arch}`
+    // b6.0 is the latest release
+    // https://github.com/eugeneware/ffmpeg-static/releases
+    const url = `${baseUrl}/ffmpeg-${platform}-${arch}`
+
+    // Check if URL is valid
+    try {
+      await axios.head(url)
+    } catch (e) {
+      const msg = `Could not download ffmpeg binary, attempted to download from ${url} failed`
+      this.printToChannel(msg)
+      showErrorMessage(msg)
+      return
+    }
 
     const t0 = perf.now()
+    this.printToChannel(`Downloading ffmpeg from ${url}`)
     await this.downloadStream(url)
     const t1 = perf.now()
     const ms = Math.round(t1 - t0)
 
     const fileSize = pb(fs.statSync(pathToFfmpeg).size)
     const msg = `ffmpeg - ${fileSize} - ${ms} ms downloaded successfully! 🚀🚀`
+    const msg2 = 'ffmpeg binary is at: ' + pathToFfmpeg
     this.printToChannel(msg)
     showInformationMessage(msg)
+    showInformationMessage(msg2)
   }
 
-  static async convert({ fsPath, path }: Uri, type: 'mp3' | 'mp4') {
+  static async convert({ fsPath, path }: Uri, type: 'mp3' | 'wav' | 'mp4') {
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg)) {
+    if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)
       showInformationMessage(abortMsg)
@@ -95,8 +112,9 @@ export default class Converter {
   private static ffmpegConvert(type: string, input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
-      title: 'Converting'
-    }, (progress) => {
+      title: 'Converting',
+      cancellable: true
+    }, (progress, token) => {
       return new Promise<void>((resolve, reject) => {
         let avgFps = 0
         let avgKbps = 0
@@ -106,8 +124,7 @@ export default class Converter {
         let count2 = 0
         let totalTime = 0
 
-        ffmpeg(input).format(type).save(output)
-          // these 2 events don't work after the 1st run
+        const command = ffmpeg(input).format(type).save(output)
           .on('codecData', ({ duration }) => totalTime = this.durationToSec(duration))
           .on('progress', (prog) => {
             const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
@@ -131,6 +148,11 @@ export default class Converter {
             // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
             // this.printToChannel(`[ffmpeg] ${msg}`)
             progress.report({ message: `${this.round(percent)}%` })
+
+            if (token.isCancellationRequested) {
+              command.kill('SIGKILL')
+              return Promise.reject('User cancelled the operation')
+            }
           })
           .on('error', (err) => {
             this.printToChannel(`[ffmpeg] error: ${err.message}`)
@@ -148,7 +170,7 @@ export default class Converter {
   }
 
   private static downloadStream(url: string) {
-    const writer = createWriteStream(pathToFfmpeg)
+    const writer = createWriteStream(pathToFfmpeg!)
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Downloading ffmpeg'
@@ -192,7 +214,7 @@ export default class Converter {
   }
 
   //@ts-ignore
-  private static getOutFile(dir: string, name: string, type: 'mp3' | 'mp4', num?: number) {
+  private static getOutFile(dir: string, name: string, type: 'mp3' | 'wav' | 'mp4', num?: number) {
     const fileName = `${name}${!num ? '' : `-${num}`}.${type}`
     const outFile = resolve(dir, fileName)
     if (fs.existsSync(outFile)) return this.getOutFile(dir, name, type, !num ? 1 : ++num)
