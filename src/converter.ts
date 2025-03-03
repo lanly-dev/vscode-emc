@@ -37,26 +37,43 @@ export default class Converter {
     }
 
     if (fs.existsSync(pathToFfmpeg)) {
-      showInformationMessage('The ffmpeg binary is already downloaded')
+      const msg = 'The ffmpeg binary is already downloaded, located at: ' + pathToFfmpeg
+      showInformationMessage(msg)
+      this.printToChannel(msg)
       return
     }
 
-    const { 'ffmpeg-static': { 'binary-release-tag': rTag, 'binary-release-name': rName }} = pkg
+    const { 'ffmpeg-static': { 'binary-release-tag': rTag } } = pkg
     const arch = os.arch()
     const platform = os.platform()
-    const release = rTag ?? rName
+    const release = rTag
     const baseUrl = `https://github.com/eugeneware/ffmpeg-static/releases/download/${release}`
-    const url = `${baseUrl}/${platform}-${arch}`
+    // b6.0 is the latest release
+    // https://github.com/eugeneware/ffmpeg-static/releases
+    const url = `${baseUrl}/ffmpeg-${platform}-${arch}`
+
+    // Check if URL is valid
+    try {
+      await axios.head(url)
+    } catch (e) {
+      const msg = `Could not download ffmpeg binary, attempted to download from ${url} failed`
+      this.printToChannel(msg)
+      showErrorMessage(msg)
+      return
+    }
 
     const t0 = perf.now()
+    this.printToChannel(`Downloading ffmpeg from ${url}`)
     await this.downloadStream(url)
     const t1 = perf.now()
     const ms = Math.round(t1 - t0)
 
     const fileSize = pb(fs.statSync(pathToFfmpeg).size)
     const msg = `ffmpeg - ${fileSize} - ${ms} ms downloaded successfully! 🚀🚀`
+    const msg2 = 'ffmpeg binary is at: ' + pathToFfmpeg
     this.printToChannel(msg)
     showInformationMessage(msg)
+    showInformationMessage(msg2)
   }
 
   static async convert({ fsPath, path }: Uri, type: 'mp3' | 'mp4') {
@@ -107,7 +124,6 @@ export default class Converter {
         let totalTime = 0
 
         ffmpeg(input).format(type).save(output)
-          // these 2 events don't work after the 1st run
           .on('codecData', ({ duration }) => totalTime = this.durationToSec(duration))
           .on('progress', (prog) => {
             const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
