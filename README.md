@@ -6,7 +6,7 @@ The answer is **YES❗**
 This is the extension that could help you with that job, and right inside the VS Code. How 😎🆒🧊!\
 It converts supported media files to mp3/wav/mp4 format, using *ffmpeg*, here and there 🎉.
 
-<img src='./media/emc.gif' width='450'/>
+<img src='https://github.com/lanly-dev/vscode-emc/blob/main/media/vscodeignore/emc.gif?raw=true' width='450'/>
 
 ## Features
 - Supported audio formats: `ape | flac | wav | wma` --> Convert to `mp3 | wav`

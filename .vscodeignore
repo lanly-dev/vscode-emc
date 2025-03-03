@@ -1,17 +1,17 @@
 .gitignore
 .token
-.vscode/**
 *.zip
-**/.eslintrc.json
 **/*.map
 **/*.ts
-**/tsconfig.json
 dist/ffmpeg.exe
-media/emc.svg
-media/emc.gif
-node_modules/**
-package.bk.json
-src/**
-test
+eslint.config.mjs
+media/vscodeignore
+tsconfig.json
 vsc-extension-quickstart.md
 webpack.config.js
+
+# Directories
+.vscode
+node_modules
+src
+test

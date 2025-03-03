@@ -1,7 +1,9 @@
 .token
 *.zip
 *.vsix
+package-lock.json
+
+# Directories
 dist
 node_modules
-package-lock.json
 test
