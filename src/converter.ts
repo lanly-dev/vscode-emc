@@ -76,7 +76,7 @@ export default class Converter {
     showInformationMessage(msg2)
   }
 
-  static async convert({ fsPath, path }: Uri, type: 'mp3' | 'mp4') {
+  static async convert({ fsPath, path }: Uri, type: 'mp3' | 'wav' | 'mp4') {
     channel.show()
     if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
@@ -208,7 +208,7 @@ export default class Converter {
   }
 
   //@ts-ignore
-  private static getOutFile(dir: string, name: string, type: 'mp3' | 'mp4', num?: number) {
+  private static getOutFile(dir: string, name: string, type: 'mp3' | 'wav' | 'mp4', num?: number) {
     const fileName = `${name}${!num ? '' : `-${num}`}.${type}`
     const outFile = resolve(dir, fileName)
     if (fs.existsSync(outFile)) return this.getOutFile(dir, name, type, !num ? 1 : ++num)

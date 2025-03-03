@@ -41,6 +41,10 @@
         "title": "EMC: Convert to mp3"
       },
       {
+        "command": "emc.convertWav",
+        "title": "EMC: Convert to wav"
+      },
+      {
         "command": "emc.convertMp4",
         "title": "EMC: Convert to mp4"
       }
@@ -52,6 +56,10 @@
           "when": "false"
         },
         {
+          "command": "emc.convertWav",
+          "when": "false"
+        },
+        {
           "command": "emc.convertMp4",
           "when": "false"
         }
@@ -59,8 +67,14 @@
       "explorer/context": [
         {
           "alt": "",
-          "when": "resourceExtname =~ /\\.(wav|wma)$/",
+          "when": "resourceExtname =~ /\\.(flac|wav|wma)$/",
           "command": "emc.convertMp3",
+          "group": "emcGroup@1"
+        },
+        {
+          "alt": "",
+          "when": "resourceExtname =~ /\\.(flac|mp3|wma)$/",
+          "command": "emc.convertWav",
           "group": "emcGroup@1"
         },
         {
