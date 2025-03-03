@@ -3,15 +3,17 @@ import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, Uri, window } from 'vscode'
 import { promisify } from 'util'
 import { resolve } from 'path'
+
+import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as stream from 'stream'
+
 import axios from 'axios'
-import ffmpeg = require('fluent-ffmpeg')
-import pathToFfmpeg = require('ffmpeg-static')
+import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-ffmpeg.setFfmpegPath(pathToFfmpeg)
+ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { createOutputChannel, showErrorMessage, showInformationMessage } = window
 const pkg = require('ffmpeg-static/package.json')
 const channel = createOutputChannel('Easy Media Converter')
@@ -20,7 +22,7 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 export default class Converter {
 
   static async init() {
-    if (!fs.existsSync(pathToFfmpeg)) {
+    if (!fs.existsSync(pathToFfmpeg!)) {
       showInformationMessage(MSG)
       this.printToChannel(MSG)
     }
@@ -39,9 +41,7 @@ export default class Converter {
       return
     }
 
-    const {
-      'ffmpeg-static': { 'binary-release-tag': rTag, 'binary-release-name': rName }
-    } = pkg
+    const { 'ffmpeg-static': { 'binary-release-tag': rTag, 'binary-release-name': rName }} = pkg
     const arch = os.arch()
     const platform = os.platform()
     const release = rTag ?? rName
@@ -61,7 +61,7 @@ export default class Converter {
 
   static async convert({ fsPath, path }: Uri, type: 'mp3' | 'mp4') {
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg)) {
+    if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)
       showInformationMessage(abortMsg)
@@ -148,7 +148,7 @@ export default class Converter {
   }
 
   private static downloadStream(url: string) {
-    const writer = createWriteStream(pathToFfmpeg)
+    const writer = createWriteStream(pathToFfmpeg!)
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Downloading ffmpeg'
