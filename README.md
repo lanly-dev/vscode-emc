@@ -1,6 +1,7 @@
 # Easy Media Converter
-Have you ever wondered 🤔 could VS Code become a media converter for some reasons?\
-Or maybe ever stump upon the need to convert quickly a media file for your game development?\
+Have you ever wondered 🤔 if VS Code could become a media converter for some reason?\
+Or maybe you have stumbled upon the need to quickly convert a media file for your game development?\
+Or perhaps you need a WAV format audio file for a voice training project?
 The answer is **YES❗**
 
 This is the extension that could help you with that job, and right inside the VS Code. How 😎🆒🧊!\

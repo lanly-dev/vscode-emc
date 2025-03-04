@@ -4,9 +4,9 @@
   "description": "Convert audio and video media to mp3/mp4",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.97.0"
   },
   "categories": [
     "Other"
@@ -100,10 +100,10 @@
     "@types/vscode": "^1.97.0",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
+    "@vscode/vsce": "^3.2.2",
     "eslint": "^9.21.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
-    "vsce": "^2.15.0",
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1"
   },

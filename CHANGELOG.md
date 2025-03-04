@@ -15,11 +15,13 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Add support `ape | flac | ts | wav`
 - Add cancellable button
 - ffmpeg 6.0
+- webpack 5.98.0 compiled with 1 warning in 5570 ms
+- 9 files, 138.96 KB, 1.97.0
 
 ## [0.1.0] - March 2022
 - Use local ffmpeg binary for conversion
-- webpack 5.70.0 compiled with 1 warning in 5687 ms
 - ffmpeg 5.0
+- webpack 5.70.0 compiled with 1 warning in 5687 ms
 - 8 files, 101.1KB, 1.65.0
 
 ### Notes
