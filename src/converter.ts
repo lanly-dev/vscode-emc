@@ -7,6 +7,7 @@ import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
 import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg} from './utils'
+import { MediaFileType } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
@@ -22,7 +23,7 @@ export default class Converter {
     printToChannel('Easy Media Converter activate successfully!')
   }
 
-  static async convert({ fsPath, path }: Uri, type: 'mp3' | 'wav' | 'mp4') {
+  static async convert({ fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
     if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
@@ -51,6 +52,11 @@ export default class Converter {
       printToChannel(`File output: ${oPath} - size: ${pb(size)}\n`)
       showInformationMessage(msg)
     } catch (error: any) {
+      if (error.message === 'ffmpeg was killed with signal SIGKILL') {
+        showInformationMessage('Conversion was canceled')
+        printToChannel('Conversion was canceled')
+        return
+      }
       showPrintErrorMsg(error)
     }
   }

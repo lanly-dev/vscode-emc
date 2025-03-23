@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { window } from 'vscode'
 import { existsSync } from 'fs'
+import { MediaFileType } from './interfaces'
 const { createOutputChannel, showErrorMessage } = window
 
 export const channel = createOutputChannel('Easy Media Converter')
@@ -25,8 +26,7 @@ export function durationToSec(duration: string) {
   return Number(hours) * 60 * 60 + Number(minutes) * 60 + Number(seconds)
 }
 
-//@ts-ignore
-export function getOutFile(dir: string, name: string, type: 'mp3' | 'wav' | 'mp4', num?: number) {
+export function getOutFile(dir: string, name: string, type: MediaFileType, num?: number) {
   const fileName = `${name}${!num ? '' : `-${num}`}.${type}`
   const outFile = resolve(dir, fileName)
   if (existsSync(outFile)) return getOutFile(dir, name, type, !num ? 1 : ++num)
