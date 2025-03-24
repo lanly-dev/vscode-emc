@@ -12,7 +12,9 @@
     "lanly",
     "nosources",
     "timemark",
-    "vscodeignore"
+    "vscodeignore",
+    "webp",
+    "webm"
   ],
   "editor.rulers": [120],
   "files.exclude": {

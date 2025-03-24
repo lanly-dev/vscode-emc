@@ -41,12 +41,20 @@
         "title": "EMC: Convert to mp3"
       },
       {
-        "command": "emc.convertWav",
-        "title": "EMC: Convert to wav"
-      },
-      {
         "command": "emc.convertMp4",
         "title": "EMC: Convert to mp4"
+      },
+      {
+        "command": "emc.convertJpg",
+        "title": "EMC: Convert to jpg"
+      },
+      {
+        "command": "emc.convertSvg",
+        "title": "EMC: Convert to svg"
+      },
+      {
+        "command": "emc.convertWav",
+        "title": "EMC: Convert to wav"
       }
     ],
     "menus": {
@@ -56,30 +64,46 @@
           "when": "false"
         },
         {
-          "command": "emc.convertWav",
+          "command": "emc.convertMp4",
           "when": "false"
         },
         {
-          "command": "emc.convertMp4",
+          "command": "emc.convertJpg",
+          "when": "false"
+        },
+        {
+          "command": "emc.convertSvg",
+          "when": "false"
+        },
+        {
+          "command": "emc.convertWav",
           "when": "false"
         }
       ],
       "explorer/context": [
         {
-          "alt": "",
           "when": "resourceExtname =~ /\\.(ape|flac|wav|wma)$/",
           "command": "emc.convertMp3",
           "group": "emcGroup@1"
         },
         {
-          "alt": "",
-          "when": "resourceExtname =~ /\\.(ape|flac|mp3|wma)$/",
-          "command": "emc.convertWav",
+          "when": "resourceExtname =~ /\\.(avi|wmv|flv|mkv|ts|webm)$/",
+          "command": "emc.convertMp4",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(avi|wmv|flv|mkv|ts)$/",
-          "command": "emc.convertMp4",
+          "when": "resourceExtname =~ /\\.(png|svg|webp)$/",
+          "command": "emc.convertJpg",
+          "group": "emcGroup@1"
+        },
+        {
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|webp)$/",
+          "command": "emc.convertSvg",
+          "group": "emcGroup@1"
+        },
+        {
+          "when": "resourceExtname =~ /\\.(ape|flac|mp3|webm|wma)$/",
+          "command": "emc.convertWav",
           "group": "emcGroup@1"
         }
       ]
