@@ -13,15 +13,9 @@ ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
 const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
+// Due to output format *** is not available
+// https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/1282
 export default class Converter {
-
-  static async init() {
-    if (!fs.existsSync(pathToFfmpeg!)) {
-      showInformationMessage(MSG)
-      printToChannel(MSG)
-    }
-    printToChannel('Easy Media Converter activate successfully!')
-  }
 
   static async convert({ fsPath, path }: Uri, type: MediaFileType) {
     channel.show()

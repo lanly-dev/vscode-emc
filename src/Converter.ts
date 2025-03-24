@@ -15,14 +15,6 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 
 export default class Converter {
 
-  static async init() {
-    if (!fs.existsSync(pathToFfmpeg!)) {
-      showInformationMessage(MSG)
-      printToChannel(MSG)
-    }
-    printToChannel('Easy Media Converter activate successfully!')
-  }
-
   static async convert({ fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
     if (!fs.existsSync(pathToFfmpeg!)) {
