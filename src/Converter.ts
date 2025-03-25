@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg} from './utils'
+import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)

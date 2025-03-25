@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg} from './utils'
+import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -62,55 +62,24 @@ export default class Converter {
       cancellable: true
     }, (progress, token) => {
       return new Promise<void>((resolve, reject) => {
-        let avgFps = 0
-        let avgKbps = 0
-        let totalFps = 0
-        let totalKbps = 0
-        let count1 = 0
-        let count2 = 0
-        let totalTime = 0
-
-        const command = ffmpeg(input).format(type).save(output)
-          .on('codecData', ({ duration }) => totalTime = durationToSec(duration))
+        const command = ffmpeg(input)
+          .output(output)
+          .format('image2') // Specify the format for images
           .on('progress', (prog) => {
-            const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
-            const time = durationToSec(timemark)
-            const percent = (time / totalTime) * 100
-            if (!isNaN(fps) && fps > 0) {
-              totalFps += fps
-              avgFps = avgFps === 0 ? avgFps + fps : (avgFps + fps) / 2
-              count1++
-            }
-
-            if (!isNaN(kbps) && kbps > 0) {
-              avgKbps = avgKbps === 0 ? avgKbps + kbps : (avgKbps + kbps) / 2
-              totalKbps += isNaN(kbps) ? 0 : kbps
-              count2++
-            }
-            if (!totalFps) totalFps = -1
-            if (!totalKbps) totalKbps = -1
-
-            // const msg = `${frames}frame|${fps}fps|${kbps}kbps|${s}size|${timemark}timemark`
-            // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
-            // printToChannel(`[ffmpeg] ${msg}`)
-            progress.report({ message: `${round(percent)}%` })
-
             if (token.isCancellationRequested) {
               command.kill('SIGKILL')
               return Promise.reject('User cancelled the operation')
             }
           })
           .on('error', (err) => {
-            printToChannel(`[ffmpeg] error: ${err.message}`)
+            console.error('FFmpeg error:', err.message);
             reject(err)
           })
           .on('end', () => {
-            avgFps = avgFps && totalFps ? round((avgFps + totalFps / count1) / 2) : -1
-            avgKbps = avgKbps && totalKbps ? round((avgKbps + totalKbps / count2) / 2) : -1
-            printToChannel('[ffmpeg] finished')
-            printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
+            console.log('Conversion completed successfully.');
             resolve()
           })
+        command.run()
       })
     })
   }

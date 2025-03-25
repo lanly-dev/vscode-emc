@@ -1,20 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
   "cSpell.words": [
-    "amodio",
-    "dbaeumer",
+    "Demux",
     "easymediaconverter",
-    "eqeqeq",
-    "flac",
-    "FLUENTFFMPEG",
-    "hackathon",
-    "kbps",
-    "lanly",
-    "nosources",
-    "timemark",
-    "vscodeignore",
-    "webp",
-    "webm"
+    "Kbps",
+    "webm",
+    "webp"
   ],
   "editor.rulers": [120],
   "files.exclude": {

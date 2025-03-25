@@ -8,7 +8,7 @@ import { download } from './downloadFn'
 import { MediaFileType } from './interfaces'
 import { printToChannel} from './utils'
 import Converter from './Converter'
-import ConverterByPass from './ConverterByPass'
+import ConverterImg from './ConverterImg'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
@@ -21,8 +21,8 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.concat([
     rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, MP3)),
     rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
-    rc('emc.convertJpg', (uri: Uri) => ConverterByPass.convert(uri, JPG)),
-    rc('emc.convertSvg', (uri: Uri) => ConverterByPass.convert(uri, SVG)),
+    rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(uri, JPG)),
+    rc('emc.convertSvg', (uri: Uri) => ConverterImg.convert(uri, SVG)),
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
     rc('emc.download', () => download())
   ])
