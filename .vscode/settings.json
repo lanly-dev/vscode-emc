@@ -6,6 +6,8 @@
     "flac",
     "Kbps",
     "lanly",
+    "nvenc",
+    "timemark",
     "webm",
     "webp"
   ],

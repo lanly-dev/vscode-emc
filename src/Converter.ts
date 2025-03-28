@@ -1,5 +1,5 @@
 import { performance as perf } from 'perf_hooks'
-import { ProgressLocation, Uri, window } from 'vscode'
+import { ProgressLocation, Uri, workspace, window } from 'vscode'
 
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
@@ -68,7 +68,10 @@ export default class Converter {
         let count2 = 0
         let totalTime = 0
 
-        const command = ffmpeg(input).format(type).save(output)
+        const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
+        let command = ffmpeg(input).format(type)
+        if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc') // NVIDIA GPU acceleration
+        command = command.save(output)
           .on('codecData', ({ duration }) => totalTime = durationToSec(duration))
           .on('progress', (prog) => {
             const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog

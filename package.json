@@ -31,6 +31,16 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "EMC",
+      "properties": {
+        "emc.enableGpuAcceleration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable GPU acceleration (h264_nvenc - NVIDIA) video encoding"
+        }
+      }
+    },
     "commands": [
       {
         "command": "emc.download",
