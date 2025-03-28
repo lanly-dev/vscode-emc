@@ -7,12 +7,22 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 ## [Future Works]
 - Patch processing
 - Show media information
-- GPU option
 - Time estimation
 - Integrate with Spectrogram extension
 
-## [1.0.0] - March 2023
-- Add support `ape | flac | ts | wav`
+## [1.1.0] - March 2025
+- Add image conversion feature: convert `jpg|jpeg|png|webp` to `jpg`
+- Add `webm` support
+- Enable GPU acceleration with the `h264-nvenc` option
+- Add same type conversion - this sometime reduce the file size
+
+### Notes
+- Wanted to support `svg` support feature, and there is no easy way  to bundle it up
+  - Converting from `svg` to `jpg`: bundling dependencies failed
+  - Converting from `jpg` or other formats to `svg`: works well for small images but takes a long time for large images
+
+## [1.0.0] - March 2025
+- Add support `ape|flac|ts|wav`
 - Add cancellable button
 - ffmpeg 6.0
 - webpack 5.98.0 compiled with 1 warning in 5570 ms
