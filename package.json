@@ -12,13 +12,16 @@
     "Other"
   ],
   "keywords": [
-    "Audio",
-    "Convert",
     "Easy",
     "Media",
+    "Convert",
+    "Image",
+    "Audio",
     "Video",
+    "jpg",
     "mp3",
-    "mp4"
+    "mp4",
+    "wav"
   ],
   "icon": "media/emc.png",
   "galleryBanner": {
