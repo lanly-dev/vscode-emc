@@ -82,27 +82,27 @@
       ],
       "explorer/context": [
         {
-          "when": "resourceExtname =~ /\\.(ape|flac|wav|wma)$/",
+          "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma)$/",
           "command": "emc.convertMp3",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(avi|wmv|flv|mkv|ts|webm)$/",
+          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "command": "emc.convertMp4",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(png|svg|webp)$/",
+          "when": "resourceExtname =~ /\\.(jpg|png|webp)$/",
           "command": "emc.convertJpg",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|webp)$/",
+          "when": "resourceExtname =~ /\\.(jpg|png|webp)$/",
           "command": "emc.convertSvg",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(ape|flac|mp3|webm|wma)$/",
+          "when": "resourceExtname =~ /\\.(ape|flac|mp3|webm|wav|wma)$/",
           "command": "emc.convertWav",
           "group": "emcGroup@1"
         }

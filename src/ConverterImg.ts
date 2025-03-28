@@ -59,26 +59,13 @@ export default class Converter {
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Converting',
-      cancellable: true
-    }, (progress, token) => {
+      cancellable: false
+      // There is no progress
+    }, () => {
       return new Promise<void>((resolve, reject) => {
-        const command = ffmpeg(input)
-          .output(output)
-          .format('image2') // Specify the format for images
-          .on('progress', (prog) => {
-            if (token.isCancellationRequested) {
-              command.kill('SIGKILL')
-              return Promise.reject('User cancelled the operation')
-            }
-          })
-          .on('error', (err) => {
-            console.error('FFmpeg error:', err.message);
-            reject(err)
-          })
-          .on('end', () => {
-            console.log('Conversion completed successfully.');
-            resolve()
-          })
+        const command = ffmpeg(input).output(output).format('image2')
+          .on('error', (err) => reject(err))
+          .on('end', () => resolve())
         command.run()
       })
     })
