@@ -3,14 +3,10 @@ import { ProgressLocation, Uri, window } from 'vscode'
 
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import { createCanvas, loadImage } from 'canvas'
-import sharp from 'sharp'
-import { Resvg } from '@resvg/resvg-js'
-import { extname } from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg } from './utils'
+import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -32,7 +28,6 @@ export default class Converter {
       return
     }
     try {
-      const inputExtName = extname(path).toLowerCase().replace('.', '') as MediaFileType
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)
       const fileName = path.split('/').pop()
@@ -41,8 +36,7 @@ export default class Converter {
       const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
 
       const t0 = perf.now()
-      if (inputExtName === 'svg') await this.preRenderSvgToJpeg(fsPath, oPath)
-      else await this.ffmpegConvert(fsPath, oPath)
+      await this.ffmpegConvert(type, fsPath, oPath)
       const t1 = perf.now()
       const ms = Math.round(t1 - t0)
 
@@ -61,71 +55,32 @@ export default class Converter {
     }
   }
 
-  private static ffmpegConvert(input: string, output: string) {
+  private static ffmpegConvert(type: string, input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Converting',
-      cancellable: false
-      // There is no progress
-    }, () => {
+      cancellable: true
+    }, (progress, token) => {
       return new Promise<void>((resolve, reject) => {
-        const command = ffmpeg(input).output(output).format('image2')
-          .on('error', (err) => reject(err))
-          .on('end', () => resolve())
+        const command = ffmpeg(input)
+          .output(output)
+          .format('image2') // Specify the format for images
+          .on('progress', (prog) => {
+            if (token.isCancellationRequested) {
+              command.kill('SIGKILL')
+              return Promise.reject('User cancelled the operation')
+            }
+          })
+          .on('error', (err) => {
+            console.error('FFmpeg error:', err.message);
+            reject(err)
+          })
+          .on('end', () => {
+            console.log('Conversion completed successfully.');
+            resolve()
+          })
         command.run()
       })
     })
-  }
-
-  // private static async preRenderSvgToJpeg(input: string, output: string) {
-  //   const image = await loadImage(input)
-  //   const canvas = createCanvas(image.width, image.height);
-  //   const ctx = canvas.getContext('2d')
-  //   ctx.drawImage(image, 0, 0)
-  //   // Convert the canvas to a JPG buffer
-  //   const buffer = canvas.toBuffer('image/jpeg')
-
-  //   // Write the buffer to a file
-  //   fs.writeFileSync(output, buffer)
-  // }
-
-  // private static async preRenderSvgToJpeg(input: string, output: string) {
-  //   try {
-  //     console.log(`Converting SVG to JPEG: ${input} => ${output}`);
-  //     // Use sharp to read the SVG and convert it to JPEG
-  //     await sharp(input)
-  //       .jpeg({ quality: 80 }) // Set JPEG quality (adjustable from 0 to 100)
-  //       .toFile(output); // Save the output as a JPEG file
-
-  //     console.log(`Conversion successful: ${output}`);
-  //   } catch (error) {
-  //     console.error('Error converting SVG to JPEG with sharp:', error);
-  //     throw error;
-  //   }
-  // }
-
-  private static async preRenderSvgToJpeg(input: string, output: string) {
-    try {
-      console.log(`Converting SVG to JPEG: ${input} => ${output}`);
-
-      // Read the SVG file as a string
-      const svgData = fs.readFileSync(input, 'utf8');
-
-      // Render the SVG using Resvg
-      const resvg = new Resvg(svgData, {
-        fitTo: { mode: 'width', value: 800 }, // Resize to 800px width (optional)
-      });
-
-      // Convert the rendered SVG to a JPEG buffer
-      const jpegBuffer = resvg.render().asPng();
-
-      // Write the JPEG buffer to the output file
-      fs.writeFileSync(output, jpegBuffer);
-
-      console.log(`Conversion successful: ${output}`);
-    } catch (error) {
-      console.error('Error converting SVG to JPEG with resvg-js:', error);
-      throw error;
-    }
   }
 }

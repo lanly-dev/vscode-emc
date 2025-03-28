@@ -13,10 +13,7 @@ const config = {
   },
   devtool: 'source-map',
   externals: {
-    vscode: 'commonjs vscode',
-    canvas: 'commonjs canvas',
-    sharp: 'commonjs sharp',
-    '@resvg/resvg-js': 'commonjs @resvg/resvg-js'
+    vscode: 'commonjs vscode'
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -28,10 +25,6 @@ const config = {
       use: [{
         loader: 'ts-loader'
       }]
-    },
-    {
-      test: /\.node$/,
-      loader: 'node-loader'
     }]
   }
 }
