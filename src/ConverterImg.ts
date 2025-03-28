@@ -15,7 +15,7 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 
 // Due to output format *** is not available
 // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/1282
-export default class Converter {
+export default class ConverterImg {
 
   static async convert({ fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
@@ -36,7 +36,7 @@ export default class Converter {
       const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
 
       const t0 = perf.now()
-      await this.ffmpegConvert(type, fsPath, oPath)
+      await this.ffmpegConvert(fsPath, oPath)
       const t1 = perf.now()
       const ms = Math.round(t1 - t0)
 
@@ -55,7 +55,7 @@ export default class Converter {
     }
   }
 
-  private static ffmpegConvert(type: string, input: string, output: string) {
+  private static ffmpegConvert(input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Converting',

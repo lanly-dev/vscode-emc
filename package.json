@@ -92,12 +92,12 @@
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(jpg|png|webp)$/",
+          "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp)$/",
           "command": "emc.convertJpg",
           "group": "emcGroup@1"
         },
         {
-          "when": "resourceExtname =~ /\\.(jpg|png|webp)$/",
+          "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp)$/",
           "command": "emc.convertSvg",
           "group": "emcGroup@1"
         },
@@ -132,9 +132,11 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@neplex/vectorizer": "^0.0.5",
     "axios": "^1.8.4",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
+    "node-loader": "^2.1.0",
     "pretty-bytes": "^6.1.1"
   },
   "repository": {

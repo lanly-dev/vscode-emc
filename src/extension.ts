@@ -9,6 +9,7 @@ import { MediaFileType } from './interfaces'
 import { printToChannel} from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
+import ConverterImgSvg from './ConverterImgSvg'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
@@ -22,7 +23,7 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, MP3)),
     rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
     rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(uri, JPG)),
-    rc('emc.convertSvg', (uri: Uri) => ConverterImg.convert(uri, SVG)),
+    rc('emc.convertSvg', (uri: Uri) => ConverterImgSvg.convert(uri)),
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
     rc('emc.download', () => download())
   ])

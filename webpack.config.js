@@ -13,7 +13,8 @@ const config = {
   },
   devtool: 'source-map',
   externals: {
-    vscode: 'commonjs vscode'
+    vscode: 'commonjs vscode',
+    '@neplex/vectorizer': 'commonjs @neplex/vectorizer'
   },
   resolve: {
     extensions: ['.ts', '.js']
@@ -25,6 +26,10 @@ const config = {
       use: [{
         loader: 'ts-loader'
       }]
+    },
+    {
+      test: /\.node$/,
+      loader: 'node-loader'
     }]
   }
 }
