@@ -15,6 +15,8 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Add `webm` support
 - Enable GPU acceleration with the `h264-nvenc` option
 - Add same type conversion - this sometime reduce the file size
+- webpack 5.98.0 compiled with 1 warning in 2160 ms
+- 9 files, 139.77 KB, 1.98
 
 ### Notes
 - Wanted to support `svg` support feature, and there is no easy way  to bundle it up

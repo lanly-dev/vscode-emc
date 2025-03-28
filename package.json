@@ -40,7 +40,7 @@
         "emc.enableGpuAcceleration": {
           "type": "boolean",
           "default": false,
-          "description": "Enable GPU acceleration (h264_nvenc - NVIDIA) video encoding"
+          "description": "Enable GPU acceleration (h264_nvenc - Nvidia) video encoding"
         }
       }
     },
