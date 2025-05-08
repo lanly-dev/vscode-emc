@@ -4,14 +4,14 @@ import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import pathToFfmpeg from 'ffmpeg-static'
 
-import { download } from './downloadFn'
+import { download } from './ffmpegFn'
 import { MediaFileType } from './interfaces'
 import { printToChannel} from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
-const { showInformationMessage } = window
+const { showErrorMessage, showInformationMessage } = window
 const { MP3, MP4, JPG, WAV } = MediaFileType
 
 export function activate(context: ExtensionContext) {
@@ -23,7 +23,8 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
     rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(uri, JPG)),
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
-    rc('emc.download', () => download())
+    rc('emc.download', download),
+    rc('emc.revealFfmpegBin', revealFfmpegBin)
   ])
 }
 
@@ -34,6 +35,20 @@ function init() {
     printToChannel(MSG)
   }
   printToChannel('Easy Media Converter activate successfully!')
+}
+
+function revealFfmpegBin() {
+  if (!pathToFfmpeg) {
+    showErrorMessage('No binary found for the current OS architecture')
+    return
+  }
+  if (!fs.existsSync(pathToFfmpeg)) {
+    const msg = 'The ffmpeg binary is unavailable 😐'
+    showInformationMessage(msg)
+    printToChannel(msg)
+    return
+  }
+  commands.executeCommand('revealFileInOS', Uri.file(pathToFfmpeg))
 }
 
 export function deactivate() { }

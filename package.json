@@ -64,6 +64,10 @@
       {
         "command": "emc.convertWav",
         "title": "EMC: Convert to wav"
+      },
+      {
+        "command": "emc.revealFfmpegBin",
+        "title": "EMC: Reveal ffmpeg binary location"
       }
     ],
     "menus": {
@@ -121,21 +125,21 @@
     "@types/ffmpeg-static": "^3.0.3",
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/node": "22.x",
-    "@types/vscode": "^1.98.0",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "@vscode/vsce": "^3.3.1",
-    "eslint": "^9.23.0",
+    "@types/vscode": "^1.99.1",
+    "@typescript-eslint/eslint-plugin": "^8.32.0",
+    "@typescript-eslint/parser": "^8.32.0",
+    "@vscode/vsce": "^3.3.2",
+    "eslint": "^9.26.0",
     "ts-loader": "^9.5.2",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0",
+    "typescript": "^5.8.3",
+    "webpack": "^5.99.8",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
-    "pretty-bytes": "^6.1.1"
+    "pretty-bytes": "^7.0.0"
   },
   "repository": {
     "url": "https://github.com/lanly-dev/vscode-emc"
