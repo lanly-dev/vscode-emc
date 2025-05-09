@@ -5,7 +5,9 @@ All notable changes to the "Easy Media Converter" extension will be documented i
 Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how to structure this file.
 
 ## [Future Works]
-- Patch processing
+- Batch processing
+- Merging feature
+- CD prep feature
 - Show media information
 - Time estimation
 - Integrate with Spectrogram extension

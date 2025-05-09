@@ -68,6 +68,29 @@
       {
         "command": "emc.revealFfmpegBin",
         "title": "EMC: Reveal ffmpeg binary location"
+      },
+      {
+        "command": "emc.addToQueue",
+        "title": "EMC: Add to Queue"
+      },
+      {
+        "command": "emc.removeFromQueue",
+        "title": "EMC: Remove from Queue"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "emcTreeView",
+          "name": "emcTreeView",
+          "contextualTitle": "EMC"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "emcTreeView",
+        "contents": "The queue view is empty. Drag and drop files here to add them to the queue."
       }
     ],
     "menus": {
@@ -108,6 +131,11 @@
         {
           "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "command": "emc.convertMp4",
+          "group": "emcGroup@2"
+        },
+        {
+          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
+          "command": "emc.addToBatchConvert",
           "group": "emcGroup@2"
         }
       ]
