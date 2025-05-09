@@ -9,7 +9,7 @@ import { MediaFileType } from './interfaces'
 import { printToChannel} from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
-import TreeViewProvider from './batchTreeview'
+import BatchTreeViewProvider from './BatchTreeview'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showErrorMessage, showInformationMessage } = window
@@ -17,7 +17,7 @@ const { MP3, MP4, JPG, WAV } = MediaFileType
 
 export function activate(context: ExtensionContext) {
   init()
-  const treeViewProvider = new TreeViewProvider()
+  const treeViewProvider = new BatchTreeViewProvider()
   window.registerTreeDataProvider('emcTreeView', treeViewProvider)
   const rc = commands.registerCommand
   context.subscriptions.concat([

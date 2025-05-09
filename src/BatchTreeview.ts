@@ -1,6 +1,6 @@
-import { Event, EventEmitter, ExtensionContext, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode'
+import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState } from 'vscode'
 
-export default class EmcTreeViewProvider implements TreeDataProvider<TreeItem> {
+export default class BatchTreeViewProvider implements TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData: EventEmitter<void> = new EventEmitter<void>()
   readonly onDidChangeTreeData: Event<void> = this._onDidChangeTreeData.event
 
