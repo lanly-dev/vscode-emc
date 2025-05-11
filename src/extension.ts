@@ -6,7 +6,7 @@ import pathToFfmpeg from 'ffmpeg-static'
 
 import { download } from './ffmpegFn'
 import { MediaFileType } from './interfaces'
-import { printToChannel} from './utils'
+import { printToChannel } from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
 import BatchTreeViewProvider from './BatchTreeview'
@@ -27,9 +27,33 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.addToBatchConvert', (file: string) => treeViewProvider.addToQueue(file)),
+    rc('emc.addToBatchConvert', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file.fsPath))),
     rc('emc.removeFromBatchConvert', (file: string) => treeViewProvider.removeFromQueue(file))
   ])
+
+
+
+  // this is for the batch convert file chooser
+  // context.subscriptions.push(
+  //   commands.registerCommand('emc.addToBatchConvert', async () => {
+  //     const files = await window.showOpenDialog({
+  //       canSelectMany: true,
+  //       openLabel: 'Add to Batch Convert',
+  //       filters: {
+  //         'Media Files': ['ape', 'flac', 'mp3', 'wav', 'wma', 'avi', 'flv', 'mkv', 'mp4', 'ts', 'webm', 'wmv']
+  //       }
+  //     });
+
+  //     if (files) {
+  //       files.forEach(file => {
+  //         treeViewProvider.addToQueue(file.fsPath);
+  //         printToChannel(`Added to batch: ${file.fsPath}`);
+  //       });
+  //     } else {
+  //       window.showInformationMessage('No files selected for batch conversion.');
+  //     }
+  //   })
+  // );
 }
 
 function init() {
