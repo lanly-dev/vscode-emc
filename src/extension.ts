@@ -27,8 +27,8 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.addToQueue', (file: string) => treeViewProvider.addToQueue(file)),
-    rc('emc.removeFromQueue', (file: string) => treeViewProvider.removeFromQueue(file))
+    rc('emc.addToBatchConvert', (file: string) => treeViewProvider.addToQueue(file)),
+    rc('emc.removeFromBatchConvert', (file: string) => treeViewProvider.removeFromQueue(file))
   ])
 }
 

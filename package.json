@@ -70,12 +70,12 @@
         "title": "EMC: Reveal ffmpeg binary location"
       },
       {
-        "command": "emc.addToQueue",
-        "title": "EMC: Add to Queue"
+        "command": "emc.addToBatchConvert",
+        "title": "EMC: Add to batch queue"
       },
       {
         "command": "emc.removeFromQueue",
-        "title": "EMC: Remove from Queue"
+        "title": "EMC: Remove from batch queue"
       }
     ],
     "views": {
@@ -134,7 +134,7 @@
           "group": "emcGroup@2"
         },
         {
-          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
+          "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "command": "emc.addToBatchConvert",
           "group": "emcGroup@2"
         }
