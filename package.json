@@ -74,15 +74,20 @@
         "title": "EMC: Add to batch queue"
       },
       {
-        "command": "emc.removeFromQueue",
+        "command": "emc.removeBatchConvert",
         "title": "EMC: Remove from batch queue"
+      },
+      {
+        "command": "emc.clearBatchConvert",
+        "title": "EMC: Clear batch queue",
+        "icon": "$(clear-all)"
       }
     ],
     "views": {
       "explorer": [
         {
           "id": "emcTreeView",
-          "name": "emcTreeView",
+          "name": "emc",
           "contextualTitle": "EMC"
         }
       ]
@@ -136,7 +141,15 @@
         {
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "command": "emc.addToBatchConvert",
-          "group": "emcGroup@2"
+          "group": "emcGroup@3"
+        }
+      ],
+      "view/title": [
+        {
+          "view": "emcTreeView",
+          "command": "emc.clearBatchConvert",
+          "group": "navigation",
+          "when": "view == emcTreeView && emcBatchItemCount > 0"
         }
       ]
     }
