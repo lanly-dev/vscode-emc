@@ -11,6 +11,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Show media information
 - Time estimation
 - Integrate with Spectrogram extension
+- Drag and drop queue
 
 ## [1.1.0] - March 2025
 - Add image conversion feature: convert `jpg|jpeg|png|webp` to `jpg`

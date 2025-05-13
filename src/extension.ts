@@ -29,7 +29,19 @@ export function activate(context: ExtensionContext) {
     rc('emc.revealFfmpegBin', revealFfmpegBin),
     rc('emc.clearBatchConvert', () => treeViewProvider.clearQueue()),
     rc('emc.addToBatchConvert', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file))),
-    rc('emc.removeFromBatchConvert', (file: Uri) => treeViewProvider.removeFromQueue(file))
+    rc('emc.removeFromBatchConvert', (file: Uri) => treeViewProvider.removeFromQueue(file)),
+    rc('emc.startConvert', () => treeViewProvider.startConvert()),
+    rc('emc.pickConvertFormat', async () => {
+      const options = treeViewProvider.getConvertFormatOptions()
+      const selected = await window.showQuickPick(options, {
+        placeHolder: 'Select an option',
+      })
+
+      if (selected) {
+        window.showInformationMessage(`You selected: ${selected}`);
+        // Perform actions based on the selected option
+      }
+    })
   ])
 
   // this is for the batch convert file chooser

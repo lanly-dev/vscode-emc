@@ -81,6 +81,16 @@
         "command": "emc.clearBatchConvert",
         "title": "EMC: Clear batch queue",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "emc.showInfo",
+        "title": "EMC: show information",
+        "icon": "$(info)"
+      },
+      {
+        "command": "emc.pickConvertFormat",
+        "title": "EMC: Pick convert format",
+        "icon": "$(run-all)"
       }
     ],
     "views": {
@@ -88,14 +98,15 @@
         {
           "id": "emcTreeView",
           "name": "emc",
-          "contextualTitle": "EMC"
+          "contextualTitle": "EMC",
+          "icon": "$(rocket)"
         }
       ]
     },
     "viewsWelcome": [
       {
         "view": "emcTreeView",
-        "contents": "The queue view is empty. Drag and drop files here to add them to the queue."
+        "contents": "The queue view is empty"
       }
     ],
     "menus": {
@@ -150,6 +161,18 @@
           "command": "emc.clearBatchConvert",
           "group": "navigation",
           "when": "view == emcTreeView && emcBatchItemCount > 0"
+        },
+        {
+          "view": "emcTreeView",
+          "command": "emc.showInfo",
+          "group": "navigation",
+          "when": "view == emcTreeView && emcBatchItemCount > 0"
+        },
+        {
+          "view": "emcTreeView",
+          "command": "emc.pickConvertFormat",
+          "group": "navigation",
+          "when": "view == emcTreeView && emcBatchConvertible"
         }
       ]
     }
