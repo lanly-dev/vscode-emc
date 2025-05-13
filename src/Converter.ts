@@ -67,6 +67,7 @@ export default class Converter {
         let count1 = 0
         let count2 = 0
         let totalTime = 0
+        let startTime = Date.now()
 
         const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
         let command = ffmpeg(input).format(type)
@@ -94,7 +95,24 @@ export default class Converter {
             // const msg = `${frames}frame|${fps}fps|${kbps}kbps|${s}size|${timemark}timemark`
             // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
             // printToChannel(`[ffmpeg] ${msg}`)
-            progress.report({ message: `${round(percent)}%` })
+
+            // Calculate time estimation based on current progress and elapsed time
+            const elapsedTime = (Date.now() - startTime) / 1000 // in seconds
+            const estimatedTotalTime = (elapsedTime * 100) / percent
+            const estimatedTimeLeft = Math.max(0, estimatedTotalTime - elapsedTime)
+
+            const hours = Math.floor(estimatedTimeLeft / 3600)
+            const minutes = Math.floor((estimatedTimeLeft % 3600) / 60)
+            const seconds = Math.floor(estimatedTimeLeft % 60)
+            const timeLeftMessage = hours > 0
+              ? `${hours}h ${minutes}m ${seconds}s left`
+              : minutes > 0
+                ? `${minutes}m ${seconds}s left`
+                : `${seconds}s left`;
+
+            progress.report({
+              message: `${round(percent)}% - ${timeLeftMessage}${fps > 0 ? ` (${round(fps)} fps)` : ''}`
+            })
 
             if (token.isCancellationRequested) {
               command.kill('SIGKILL')
