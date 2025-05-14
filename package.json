@@ -88,8 +88,8 @@
         "icon": "$(info)"
       },
       {
-        "command": "emc.pickConvertFormat",
-        "title": "EMC: Pick convert format",
+        "command": "emc.startConversion",
+        "title": "EMC: start conversion",
         "icon": "$(run-all)"
       }
     ],
@@ -170,7 +170,7 @@
         },
         {
           "view": "emcTreeView",
-          "command": "emc.pickConvertFormat",
+          "command": "emc.startConversion",
           "group": "navigation",
           "when": "view == emcTreeView && emcQueueConvertible"
         }

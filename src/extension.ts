@@ -9,6 +9,7 @@ import { MediaFileType } from './interfaces'
 import { printToChannel } from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
+import ConverterQueue from './ConverterQueue'
 import TreeViewProvider from './Treeview'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -30,18 +31,11 @@ export function activate(context: ExtensionContext) {
     rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
     rc('emc.addToQueue', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file))),
     rc('emc.removeFromQueue', (file: Uri) => treeViewProvider.removeFromQueue(file)),
-    rc('emc.startConvert', () => treeViewProvider.startConvert()),
-    rc('emc.pickConvertFormat', async () => {
-      const options = treeViewProvider.getConvertFormatOptions
-      ()
-      const selected = await window.showQuickPick(options, {
-        placeHolder: 'Select an option',
-      })
-
-      if (selected) {
-        window.showInformationMessage(`You selected: ${selected}`);
-        // Perform actions based on the selected option
-      }
+    rc('emc.startConversion', async () => {
+      const options = treeViewProvider.getConvertFormatOptions()
+      const selected = await window.showQuickPick(options, { placeHolder: 'Select an option' })
+      Object.values(MediaFileType).includes(selected as MediaFileType)
+      ConverterQueue.convert(treeViewProvider.queue, selected as MediaFileType)
     })
   ])
 

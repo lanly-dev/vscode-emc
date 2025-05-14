@@ -7,7 +7,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   private _onDidChangeTreeData: EventEmitter<void> = new EventEmitter<void>()
   readonly onDidChangeTreeData: Event<void> = this._onDidChangeTreeData.event
 
-  private queue: Uri[] = []
+  public queue: Uri[] = []
 
   constructor() { }
 
@@ -16,12 +16,12 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   }
 
   private updateItemCount(): void {
-    commands.executeCommand('setContext', 'emcBatchItemCount', this.queue.length)
+    commands.executeCommand('setContext', 'emcItemCount', this.queue.length)
   }
 
   private updateBatchConvertibleStatus(): void {
-    const isConvertible = this.isQueueConvertible();
-    commands.executeCommand('setContext', 'emcBatchConvertible', isConvertible);
+    const isConvertible = this.isQueueConvertible()
+    commands.executeCommand('setContext', 'emcQueueConvertible', isConvertible)
   }
 
   getTreeItem(element: TreeItem): TreeItem {
@@ -29,16 +29,16 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   }
 
   getChildren(element?: TreeItem): Thenable<TreeItem[]> {
-    if (!element) {
-      return Promise.resolve(
-        this.queue.map((file) => {
-          const item = new TreeItem(file, TreeItemCollapsibleState.None)
-          item.command = { command: 'emc.removeFromQueue', title: 'Remove from Queue', arguments: [file] }
-          return item
-        })
-      )
-    }
-    return Promise.resolve([])
+    if (element) return Promise.resolve([])
+
+    // If no element is provided == root element
+    return Promise.resolve(
+      this.queue.map((file) => {
+        const item = new TreeItem(file, TreeItemCollapsibleState.None)
+        item.command = { command: 'emc.removeFromQueue', title: 'Remove from Queue', arguments: [file] }
+        return item
+      })
+    )
   }
 
   addToQueue(file: Uri): void {
