@@ -70,16 +70,16 @@
         "title": "EMC: Reveal ffmpeg binary location"
       },
       {
-        "command": "emc.addToBatchConvert",
-        "title": "EMC: Add to batch queue"
+        "command": "emc.addToQueue",
+        "title": "EMC: Add to queue"
       },
       {
-        "command": "emc.removeBatchConvert",
-        "title": "EMC: Remove from batch queue"
+        "command": "emc.removeFromQueue",
+        "title": "EMC: Remove from queue"
       },
       {
-        "command": "emc.clearBatchConvert",
-        "title": "EMC: Clear batch queue",
+        "command": "emc.clearQueue",
+        "title": "EMC: Clear queue",
         "icon": "$(clear-all)"
       },
       {
@@ -151,28 +151,28 @@
         },
         {
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "command": "emc.addToBatchConvert",
+          "command": "emc.addToQueue",
           "group": "emcGroup@3"
         }
       ],
       "view/title": [
         {
           "view": "emcTreeView",
-          "command": "emc.clearBatchConvert",
+          "command": "emc.clearQueue",
           "group": "navigation",
-          "when": "view == emcTreeView && emcBatchItemCount > 0"
+          "when": "view == emcTreeView && emcItemCount > 0"
         },
         {
           "view": "emcTreeView",
           "command": "emc.showInfo",
           "group": "navigation",
-          "when": "view == emcTreeView && emcBatchItemCount > 0"
+          "when": "view == emcTreeView && emcItemCount > 0"
         },
         {
           "view": "emcTreeView",
           "command": "emc.pickConvertFormat",
           "group": "navigation",
-          "when": "view == emcTreeView && emcBatchConvertible"
+          "when": "view == emcTreeView && emcQueueConvertible"
         }
       ]
     }

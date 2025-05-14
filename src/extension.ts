@@ -9,7 +9,7 @@ import { MediaFileType } from './interfaces'
 import { printToChannel } from './utils'
 import Converter from './Converter'
 import ConverterImg from './ConverterImg'
-import BatchTreeViewProvider from './BatchTreeview'
+import TreeViewProvider from './Treeview'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showErrorMessage, showInformationMessage } = window
@@ -17,7 +17,7 @@ const { MP3, MP4, JPG, WAV } = MediaFileType
 
 export function activate(context: ExtensionContext) {
   init()
-  const treeViewProvider = new BatchTreeViewProvider()
+  const treeViewProvider = new TreeViewProvider()
   window.registerTreeDataProvider('emcTreeView', treeViewProvider)
   const rc = commands.registerCommand
   context.subscriptions.concat([
@@ -27,12 +27,13 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.clearBatchConvert', () => treeViewProvider.clearQueue()),
-    rc('emc.addToBatchConvert', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file))),
-    rc('emc.removeFromBatchConvert', (file: Uri) => treeViewProvider.removeFromQueue(file)),
+    rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
+    rc('emc.addToQueue', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file))),
+    rc('emc.removeFromQueue', (file: Uri) => treeViewProvider.removeFromQueue(file)),
     rc('emc.startConvert', () => treeViewProvider.startConvert()),
     rc('emc.pickConvertFormat', async () => {
-      const options = treeViewProvider.getConvertFormatOptions()
+      const options = treeViewProvider.getConvertFormatOptions
+      ()
       const selected = await window.showQuickPick(options, {
         placeHolder: 'Select an option',
       })
