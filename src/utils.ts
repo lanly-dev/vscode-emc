@@ -33,6 +33,11 @@ export function getOutFile(dir: string, name: string, type: MediaFileType, num?:
   return { outFile, fileName }
 }
 
+export function getOutDirectory(dir: string) {
+  const dirName = 'emc' + Math.floor(Date.now() / 1000)
+  return  resolve(dir, dirName)
+}
+
 export function showPrintErrorMsg(error: Error) {
   const msg = 'Error: conversion failed!'
   printToChannel(`${msg} - ${error.message ?? JSON.stringify(error, null, 2)}\n`)

@@ -6,3 +6,21 @@ export enum MediaFileType {
   WEBP = 'webp',
   WEBM = 'webm'
 }
+
+export interface ConversionResult {
+  input: string;
+  output: string;
+  time: number;
+  inputSize: number;
+  outputSize: number;
+}
+
+export interface ConversionProgress {
+  currentFps: number;
+  currentKbps: number;
+  timemark: string;
+}
+
+export interface CodecData {
+  duration: string;
+}

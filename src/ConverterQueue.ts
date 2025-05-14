@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
-import { MediaFileType } from './interfaces'
+import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
@@ -15,6 +15,39 @@ export default class ConverterQueue {
   private static readonly MAX_CONCURRENT = 3  // Maximum concurrent conversions
   private static activeConversions = 0
   private static isProcessing = false
+
+  private static writeSummary(files: ConversionResult[], outputDir: string): void {
+    const summary = [`Batch Conversion Summary (${new Date().toLocaleString()})`, ''];
+
+    let totalInputSize = 0;
+    let totalOutputSize = 0;
+    let totalTime = 0;
+
+    files.forEach((file, index) => {
+      totalInputSize += file.inputSize;
+      totalOutputSize += file.outputSize;
+      totalTime += file.time;
+
+      summary.push(`File ${index + 1}:`);
+      summary.push(`Input: ${file.input}`);
+      summary.push(`Output: ${file.output}`);
+      summary.push(`Time: ${fmtMSS(file.time)}`);
+      summary.push(`Input Size: ${pb(file.inputSize)}`);
+      summary.push(`Output Size: ${pb(file.outputSize)}`);
+      summary.push('');
+    });
+
+    summary.push('Summary:');
+    summary.push(`Total Files: ${files.length}`);
+    summary.push(`Total Input Size: ${pb(totalInputSize)}`);
+    summary.push(`Total Output Size: ${pb(totalOutputSize)}`);
+    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`);
+    summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`);
+
+    const summaryPath = `${outputDir}/conversion_summary_${Date.now()}.txt`;
+    fs.writeFileSync(summaryPath, summary.join('\n'));
+    printToChannel(`Summary written to: ${summaryPath}`);
+  }
 
   static async convert(files: Uri[], type: MediaFileType): Promise<void> {
     if (this.isProcessing) {
@@ -32,6 +65,8 @@ export default class ConverterQueue {
     this.isProcessing = true
     const total = files.length
     let completed = 0
+
+    const conversions: ConversionResult[] = [];
 
     try {
       await window.withProgress({
@@ -64,8 +99,16 @@ export default class ConverterQueue {
               const ms = Math.round(t1 - t0)
               const msg = `${fileName} => ${oFName} completed!`
               printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
-              const size = fs.statSync(oPath).size
-              printToChannel(`File output: ${oPath} - size: ${pb(size)}\n`)
+              const outputSize = fs.statSync(oPath).size
+              printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
+
+              conversions.push({
+                input: file.fsPath,
+                output: oPath,
+                time: ms,
+                inputSize,
+                outputSize
+              });
 
             } catch (error: any) {
               if (error.message === 'ffmpeg was killed with signal SIGKILL') {
@@ -79,6 +122,13 @@ export default class ConverterQueue {
           await Promise.all(promises)
         }
       })
+
+      // Write summary after all conversions are complete
+      if (conversions.length > 0) {
+        const outputDir = conversions[0].output.split('\\').slice(0, -1).join('\\');
+        this.writeSummary(conversions, outputDir);
+      }
+
     } finally {
       this.isProcessing = false
     }
@@ -110,8 +160,8 @@ export default class ConverterQueue {
       if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc')
 
       command = command.save(output)
-        .on('codecData', ({ duration }) => totalTime = durationToSec(duration))
-        .on('progress', (prog) => {
+        .on('codecData', ({ duration }: CodecData) => totalTime = durationToSec(duration))
+        .on('progress', (prog: ConversionProgress) => {
           const { currentFps: fps, currentKbps: kbps, timemark } = prog
           const time = durationToSec(timemark)
           const percent = (time / totalTime) * 100
