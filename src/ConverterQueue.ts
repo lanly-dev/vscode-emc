@@ -2,9 +2,10 @@ import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, Uri, workspace, window } from 'vscode'
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
+import * as path from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
-import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
+import { channel, durationToSec, fmtMSS, getWorkspacePath, printToChannel, round, showPrintErrorMsg } from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -12,88 +13,62 @@ const { showInformationMessage } = window
 const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class ConverterQueue {
-  private static readonly MAX_CONCURRENT = 3  // Maximum concurrent conversions
-  private static activeConversions = 0
+  private static readonly MAX_CONCURRENT = 3
   private static isProcessing = false
 
-  private static writeSummary(files: ConversionResult[], outputDir: string): void {
-    const summary = [`Batch Conversion Summary (${new Date().toLocaleString()})`, ''];
-
-    let totalInputSize = 0;
-    let totalOutputSize = 0;
-    let totalTime = 0;
-
-    files.forEach((file, index) => {
-      totalInputSize += file.inputSize;
-      totalOutputSize += file.outputSize;
-      totalTime += file.time;
-
-      summary.push(`File ${index + 1}:`);
-      summary.push(`Input: ${file.input}`);
-      summary.push(`Output: ${file.output}`);
-      summary.push(`Time: ${fmtMSS(file.time)}`);
-      summary.push(`Input Size: ${pb(file.inputSize)}`);
-      summary.push(`Output Size: ${pb(file.outputSize)}`);
-      summary.push('');
-    });
-
-    summary.push('Summary:');
-    summary.push(`Total Files: ${files.length}`);
-    summary.push(`Total Input Size: ${pb(totalInputSize)}`);
-    summary.push(`Total Output Size: ${pb(totalOutputSize)}`);
-    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`);
-    summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`);
-
-    const summaryPath = `${outputDir}/conversion_summary_${Date.now()}.txt`;
-    fs.writeFileSync(summaryPath, summary.join('\n'));
-    printToChannel(`Summary written to: ${summaryPath}`);
-  }
-
   static async convert(files: Uri[], type: MediaFileType): Promise<void> {
+    channel.show()
     if (this.isProcessing) {
+      // Need to do context
       showInformationMessage('A batch conversion is already in progress')
       return
     }
 
-    channel.show()
     if (!fs.existsSync(pathToFfmpeg!)) {
+      const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)
-      showInformationMessage('Converting action aborted')
+      showInformationMessage(abortMsg)
+      printToChannel(MSG)
+      printToChannel(abortMsg)
       return
     }
 
     this.isProcessing = true
     const total = files.length
     let completed = 0
+    const outputDir = getWorkspacePath()
+    if (!outputDir) {
+      showInformationMessage('No workspace folder found. Please open a workspace folder to save the converted files.')
+      this.isProcessing = false
+      return
+    }
 
-    const conversions: ConversionResult[] = [];
-
+    const conversions: ConversionResult[] = []
     try {
       await window.withProgress({
         location: ProgressLocation.Notification,
         title: 'Batch Converting',
         cancellable: true
       }, async (progress, token) => {
-        // Process files in chunks to manage system resources
         for (let i = 0; i < files.length; i += this.MAX_CONCURRENT) {
           if (token.isCancellationRequested) {
-            showInformationMessage('Batch conversion cancelled')
+            showInformationMessage('Batch conversion canceled')
             return
           }
-
-          const chunk = files.slice(i, i + this.MAX_CONCURRENT)
-          const promises = chunk.map(async (file) => {
+          let p: Promise<void>[] = []
+          const subBatch = files.slice(i, i + this.MAX_CONCURRENT)
+          for (const file of subBatch) {
             try {
-              const t0 = perf.now()
               const inputSize = fs.statSync(file.fsPath).size
               printToChannel(`Processing file ${++completed}/${total}: ${file.fsPath} - size: ${pb(inputSize)}`)
 
               const fileName = file.path.split('/').pop()
               const name = fileName?.split('.')[0]
-              const dir = file.fsPath.replace(fileName!, '')
-              const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
+              const oPath = path.join(outputDir, `${name}.${type}`)
+              const oFName = path.basename(oPath)
 
-              await this.convertFile(type, file.fsPath, oPath, progress, token, completed, total)
+              const t0 = perf.now()
+              p.push(this.convertFile(type, file.fsPath, oPath, progress, token, completed, total))
 
               const t1 = perf.now()
               const ms = Math.round(t1 - t0)
@@ -108,7 +83,7 @@ export default class ConverterQueue {
                 time: ms,
                 inputSize,
                 outputSize
-              });
+              })
 
             } catch (error: any) {
               if (error.message === 'ffmpeg was killed with signal SIGKILL') {
@@ -117,23 +92,19 @@ export default class ConverterQueue {
                 showPrintErrorMsg(error)
               }
             }
-          })
-
-          await Promise.all(promises)
+          }
+          await Promise.all(p)
         }
       })
+      this.writeSummary(conversions, outputDir)
 
-      // Write summary after all conversions are complete
-      if (conversions.length > 0) {
-        const outputDir = conversions[0].output.split('\\').slice(0, -1).join('\\');
-        this.writeSummary(conversions, outputDir);
-      }
-
+      showInformationMessage(`Batch conversion completed: ${completed}/${total} files. Output directory: ${outputDir}`)
+    } catch (error) {
+      printToChannel(`Batch conversion failed: ${error}`)
+      showInformationMessage('Batch conversion failed. Check the output panel for details.')
     } finally {
       this.isProcessing = false
     }
-
-    showInformationMessage(`Batch conversion completed: ${completed}/${total} files`)
   }
 
   private static convertFile(
@@ -217,5 +188,38 @@ export default class ConverterQueue {
         command.kill('SIGKILL')
       })
     })
+  }
+
+  private static writeSummary(files: ConversionResult[], outputDir: string): void {
+    const summary = [`Batch Conversion Summary (${new Date().toLocaleString()})`, '']
+
+    let totalInputSize = 0
+    let totalOutputSize = 0
+    let totalTime = 0
+
+    files.forEach((file, index) => {
+      totalInputSize += file.inputSize
+      totalOutputSize += file.outputSize
+      totalTime += file.time
+
+      summary.push(`File ${index + 1}:`)
+      summary.push(`Input: ${file.input}`)
+      summary.push(`Output: ${file.output}`)
+      summary.push(`Time: ${fmtMSS(file.time)}`)
+      summary.push(`Input Size: ${pb(file.inputSize)}`)
+      summary.push(`Output Size: ${pb(file.outputSize)}`)
+      summary.push('')
+    })
+
+    summary.push('Summary:')
+    summary.push(`Total Files: ${files.length}`)
+    summary.push(`Total Input Size: ${pb(totalInputSize)}`)
+    summary.push(`Total Output Size: ${pb(totalOutputSize)}`)
+    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`)
+    summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`)
+
+    const summaryPath = path.join(outputDir, `conversion_summary_${Date.now()}.txt`)
+    fs.writeFileSync(summaryPath, summary.join('\n'))
+    printToChannel(`Summary written to: ${summaryPath}`)
   }
 }
