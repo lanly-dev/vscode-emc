@@ -86,11 +86,8 @@ export default class ConverterQueue {
               })
 
             } catch (error: any) {
-              if (error.message === 'ffmpeg was killed with signal SIGKILL') {
-                printToChannel('Conversion was canceled')
-              } else {
-                showPrintErrorMsg(error)
-              }
+              if (error.message === 'ffmpeg was killed with signal SIGKILL') printToChannel('Conversion was canceled')
+              else showPrintErrorMsg(error)
             }
           }
           await Promise.all(p)

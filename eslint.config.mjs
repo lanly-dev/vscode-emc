@@ -2,6 +2,8 @@ import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 
 export default [{
+  files: ['**/*.ts']
+}, {
   ignores: ['**/out', '**/dist']
 }, {
   plugins: {
@@ -14,6 +16,7 @@ export default [{
   },
   rules: {
     '@typescript-eslint/naming-convention': ['warn', { selector: 'import', format: ['camelCase', 'PascalCase'] }],
+    '@typescript-eslint/semi': ['error'],
     'comma-dangle': ['error', 'never'],
     'eol-last': ['error', 'always'],
     'max-len': ['error', { code: 120 }],

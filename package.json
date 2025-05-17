@@ -182,7 +182,7 @@
     "test-compile": "tsc -p ./",
     "webpack-dev": "webpack --mode development --watch",
     "webpack": "webpack --mode development",
-    "efix": "eslint . --fix",
+    "efix": "eslint src --fix",
     "vsce-package": "vsce package"
   },
   "devDependencies": {

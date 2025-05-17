@@ -8,19 +8,19 @@ export enum MediaFileType {
 }
 
 export interface ConversionResult {
-  input: string;
-  output: string;
-  time: number;
-  inputSize: number;
-  outputSize: number;
+  input: string
+  output: string
+  time: number
+  inputSize: number
+  outputSize: number
 }
 
 export interface ConversionProgress {
   currentFps: number;
-  currentKbps: number;
-  timemark: string;
+  currentKbps: number
+  timemark: string
 }
 
 export interface CodecData {
-  duration: string;
+  duration: string
 }

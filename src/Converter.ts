@@ -108,7 +108,7 @@ export default class Converter {
               ? `${hours}h ${minutes}m ${seconds}s left`
               : minutes > 0
                 ? `${minutes}m ${seconds}s left`
-                : `${seconds}s left`;
+                : `${seconds}s left`
 
             progress.report({
               message: `${round(percent)}% - ${timeLeftMessage}${fps > 0 ? ` (${round(fps)} fps)` : ''}`
