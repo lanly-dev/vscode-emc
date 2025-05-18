@@ -161,7 +161,8 @@ export default class ConverterQueue {
               : `${seconds}s left`
 
           progress.report({
-            message: `File ${current}/${total}: ${round(percent)}% - ${timeLeftMessage}${fps > 0 ? ` (${round(fps)} fps)` : ''}`
+            message: `File ${current}/${total}: ${round(percent)}% - ${timeLeftMessage}` +
+              `${fps > 0 ? ` (${round(fps)} fps)` : ''}`
           })
 
           if (token.isCancellationRequested) {

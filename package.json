@@ -182,7 +182,7 @@
     "test-compile": "tsc -p ./",
     "webpack-dev": "webpack --mode development --watch",
     "webpack": "webpack --mode development",
-    "efix": "eslint src --fix",
+    "efix": "eslint . --fix",
     "vsce-package": "vsce package"
   },
   "devDependencies": {
@@ -200,6 +200,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@stylistic/eslint-plugin-ts": "^4.2.0",
     "axios": "^1.9.0",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",

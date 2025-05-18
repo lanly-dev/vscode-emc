@@ -16,7 +16,7 @@ export interface ConversionResult {
 }
 
 export interface ConversionProgress {
-  currentFps: number;
+  currentFps: number
   currentKbps: number
   timemark: string
 }
