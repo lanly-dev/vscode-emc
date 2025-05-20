@@ -67,29 +67,26 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && ['jpg', 'jpeg', 'png', 'webp'].includes(ext)
     })
-    if (isImageConvertible) options.push('JPG')
+    if (isImageConvertible) options.push(MediaFileType.JPG)
 
     const vFormat = ['avi', 'flv', 'mkv', 'mp4', 'ts', 'webm', 'wmv']
     const isVideoConvertible = this.queue.every((file) => {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && vFormat.includes(ext)
     })
-    if (isVideoConvertible) options.push('MP4')
+    if (isVideoConvertible) options.push(MediaFileType.MP4)
 
     const aFormat = ['ape', 'flac', 'mp3', 'wav', 'wma'].concat(vFormat)
     const isAudioConvertible = this.queue.every((file) => {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && aFormat.includes(ext)
     })
-    if (isAudioConvertible) options.push('MP3')
+    if (isAudioConvertible) options.push(MediaFileType.MP3)
     return options
   }
 
   isQueueConvertible(): boolean {
-    if (this.getConvertFormatOptions().length === 0) {
-      console.log('Queue is not convertible')
-      return false
-    }
+    if (this.getConvertFormatOptions().length === 0) return false
     return true
   }
 

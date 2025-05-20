@@ -1,5 +1,5 @@
 import { resolve } from 'path'
-import { window, workspace } from 'vscode'
+import { Uri, window, workspace } from 'vscode'
 import { existsSync } from 'fs'
 import { MediaFileType } from './interfaces'
 const { createOutputChannel, showErrorMessage } = window
@@ -33,15 +33,17 @@ export function getOutFile(dir: string, name: string, type: MediaFileType, num?:
   return { outFile, fileName }
 }
 
-// TODO: could combine with getOutDirectory, add default config later
 export function getWorkspacePath(): string | undefined {
   const workspaceFolder = workspace.workspaceFolders?.[0]
   return workspaceFolder?.uri.fsPath
 }
 
-export function getOutDirectory(dir: string) {
-  const dirName = 'emc' + Math.floor(Date.now() / 1000)
-  return resolve(dir, dirName)
+export function getOutDirName() {
+  return 'emc' + Math.floor(Date.now() / 1000)
+}
+
+export async function createDir(path: Uri): Promise<void> {
+  await workspace.fs.createDirectory(path)
 }
 
 export function showPrintErrorMsg(error: Error) {

@@ -126,7 +126,7 @@ export default class Converter {
           .on('end', () => {
             avgFps = avgFps && totalFps ? round((avgFps + totalFps / count1) / 2) : -1
             avgKbps = avgKbps && totalKbps ? round((avgKbps + totalKbps / count2) / 2) : -1
-            printToChannel('[ffmpeg] finished')
+            // console.debug('[ffmpeg] finished')
             printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
             resolve()
           })

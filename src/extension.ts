@@ -34,6 +34,10 @@ export function activate(context: ExtensionContext) {
     rc('emc.startConversion', async () => {
       const options = treeViewProvider.getConvertFormatOptions()
       const selected = await window.showQuickPick(options, { placeHolder: 'Select an option' })
+      if (!selected) {
+        showErrorMessage('No option selected')
+        return
+      }
       Object.values(MediaFileType).includes(selected as MediaFileType)
       ConverterQueue.convert(treeViewProvider.queue, selected as MediaFileType)
     })

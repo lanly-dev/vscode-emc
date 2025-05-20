@@ -5,7 +5,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
-import { channel, durationToSec, fmtMSS, getWorkspacePath, printToChannel, round, showPrintErrorMsg } from './utils'
+import {
+  channel, createDir, durationToSec, fmtMSS, getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
+} from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -19,7 +21,7 @@ export default class ConverterQueue {
   static async convert(files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
     if (this.isProcessing) {
-      // Need to do context
+      // Need to set context
       showInformationMessage('A batch conversion is already in progress')
       return
     }
@@ -34,11 +36,22 @@ export default class ConverterQueue {
     }
 
     this.isProcessing = true
-    const total = files.length
+    const totalFiles = files.length
     let completed = 0
-    const outputDir = getWorkspacePath()
-    if (!outputDir) {
+
+    // TODO: figure out if need default directory
+    const wsPath = getWorkspacePath()
+    if (!wsPath) {
       showInformationMessage('No workspace folder found. Please open a workspace folder to save the converted files.')
+      this.isProcessing = false
+      return
+    }
+    const outputDir = path.join(wsPath, getOutDirName())
+    try {
+      await createDir(Uri.file(outputDir))
+      showInformationMessage(`Output directory created: ${outputDir}`)
+    } catch (error: any) {
+      showPrintErrorMsg(error)
       this.isProcessing = false
       return
     }
@@ -60,30 +73,30 @@ export default class ConverterQueue {
           for (const file of subBatch) {
             try {
               const inputSize = fs.statSync(file.fsPath).size
-              printToChannel(`Processing file ${++completed}/${total}: ${file.fsPath} - size: ${pb(inputSize)}`)
+              printToChannel(`Processing file ${++completed}/${totalFiles}: ${file.fsPath} - size: ${pb(inputSize)}`)
 
               const fileName = file.path.split('/').pop()
               const name = fileName?.split('.')[0]
               const oPath = path.join(outputDir, `${name}.${type}`)
-              const oFName = path.basename(oPath)
+              // const oFName = path.basename(oPath)
 
-              const t0 = perf.now()
-              p.push(this.convertFile(type, file.fsPath, oPath, progress, token, completed, total))
+              // const t0 = perf.now()
+              p.push(this.convertFiles(type, file.fsPath, oPath, progress, token, completed, totalFiles))
 
-              const t1 = perf.now()
-              const ms = Math.round(t1 - t0)
-              const msg = `${fileName} => ${oFName} completed!`
-              printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
-              const outputSize = fs.statSync(oPath).size
-              printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
+              // const t1 = perf.now()
+              // const ms = Math.round(t1 - t0)
+              // const msg = `${fileName} => ${oFName} completed!`
+              // printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
+              // const outputSize = fs.statSync(oPath).size
+              // printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
 
-              conversions.push({
-                input: file.fsPath,
-                output: oPath,
-                time: ms,
-                inputSize,
-                outputSize
-              })
+              // conversions.push({
+              //   input: file.fsPath,
+              //   output: oPath,
+              //   time: ms,
+              //   inputSize,
+              //   outputSize
+              // })
 
             } catch (error: any) {
               if (error.message === 'ffmpeg was killed with signal SIGKILL') printToChannel('Conversion was canceled')
@@ -94,8 +107,9 @@ export default class ConverterQueue {
         }
       })
       this.writeSummary(conversions, outputDir)
-
-      showInformationMessage(`Batch conversion completed: ${completed}/${total} files. Output directory: ${outputDir}`)
+      showInformationMessage(
+        `Batch conversion completed: ${completed}/${totalFiles} files.\nOutput directory: ${outputDir}`
+      )
     } catch (error) {
       printToChannel(`Batch conversion failed: ${error}`)
       showInformationMessage('Batch conversion failed. Check the output panel for details.')
@@ -104,7 +118,7 @@ export default class ConverterQueue {
     }
   }
 
-  private static convertFile(
+  private static convertFiles(
     type: string,
     input: string,
     output: string,
@@ -126,7 +140,7 @@ export default class ConverterQueue {
       const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
       let command = ffmpeg(input).format(type)
       if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc')
-
+      console.debug(`output: ${output}, input: ${input}, type: ${type}`)
       command = command.save(output)
         .on('codecData', ({ duration }: CodecData) => totalTime = durationToSec(duration))
         .on('progress', (prog: ConversionProgress) => {
