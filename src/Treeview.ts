@@ -1,6 +1,8 @@
-import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, commands } from 'vscode'
+import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
+import { commands, window } from 'vscode'
 import Converter from './Converter'
 import { MediaFileType } from './interfaces'
+const { showInformationMessage } = window
 
 export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
@@ -35,22 +37,30 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     return Promise.resolve(
       this.queue.map((file) => {
         const item = new TreeItem(file, TreeItemCollapsibleState.None)
-        item.command = { command: 'emc.removeFromQueue', title: 'Remove from Queue', arguments: [file] }
+        item.contextValue = 'emcTreeviewItem'
         return item
       })
     )
   }
 
-  addToQueue(file: Uri): void {
-    this.queue.push(file)
+  addToQueue(files: Uri[]): void {
+    const dup: Uri[] = []
+    files.forEach(item => {
+      if (this.queue.length && this.queue.some(queueItem => queueItem.fsPath === item.fsPath)) dup.push(item)
+      else this.queue.push(item)
+    })
+    if (dup.length) {
+      const dupNames = dup.map(item => item.path.split('/').pop()).join(', ')
+      showInformationMessage(`Files already in queue: ${dupNames}`)
+    }
     this.queue.sort((a, b) => a.fsPath.localeCompare(b.fsPath))
     this.updateItemCount()
     this.updateBatchConvertibleStatus()
     this.refresh()
   }
 
-  removeFromQueue(file: Uri): void {
-    this.queue = this.queue.filter((item) => item !== file)
+  removeFromQueue(targetItem: TreeItem): void {
+    this.queue = this.queue.filter((item) => item !== targetItem.resourceUri)
     this.updateItemCount()
     this.refresh()
   }

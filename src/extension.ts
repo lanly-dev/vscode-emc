@@ -1,4 +1,4 @@
-import { commands, window } from 'vscode'
+import { commands, TreeItem, window } from 'vscode'
 import { ExtensionContext, Uri } from 'vscode'
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
@@ -29,13 +29,13 @@ export function activate(context: ExtensionContext) {
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
     rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
-    rc('emc.addToQueue', (file: Uri, files: Uri[]) => files.forEach(file => treeViewProvider.addToQueue(file))),
-    rc('emc.removeFromQueue', (file: Uri) => treeViewProvider.removeFromQueue(file)),
+    rc('emc.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
+    rc('emc.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
     rc('emc.startConversion', async () => {
       const options = treeViewProvider.getConvertFormatOptions()
       const selected = await window.showQuickPick(options, { placeHolder: 'Select an option' })
       if (!selected) {
-        showErrorMessage('No option selected')
+        showErrorMessage('EMC: No option selected')
         return
       }
       Object.values(MediaFileType).includes(selected as MediaFileType)
