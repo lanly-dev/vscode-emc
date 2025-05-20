@@ -6,7 +6,8 @@ import * as path from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 import {
-  channel, createDir, durationToSec, fmtMSS, getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
+  channel, createDir, durationToSec, fmtMSS, getFormattedDate, getOutDirName, getWorkspacePath, printToChannel, round, 
+  showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
 
@@ -76,28 +77,29 @@ export default class ConverterQueue {
               printToChannel(`Processing file ${++completed}/${totalFiles}: ${file.fsPath} - size: ${pb(inputSize)}`)
 
               const fileName = file.path.split('/').pop()
-              const name = fileName?.split('.')[0]
+              const name = fileName?.replace('.', '_')
               const oPath = path.join(outputDir, `${name}.${type}`)
-              // const oFName = path.basename(oPath)
+              const oFName = path.basename(oPath)
 
-              // const t0 = perf.now()
-              p.push(this.convertFiles(type, file.fsPath, oPath, progress, token, completed, totalFiles))
+              const t0 = perf.now()
+              const theP = this.convertFiles(type, file.fsPath, oPath, progress, token, completed, totalFiles)
+              p.push(theP)
+              theP.then(() => {
+                const t1 = perf.now()
+                const ms = Math.round(t1 - t0)
+                const msg = `${fileName} => ${oFName} completed!`
+                printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
+                const outputSize = fs.statSync(oPath).size
+                printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
 
-              // const t1 = perf.now()
-              // const ms = Math.round(t1 - t0)
-              // const msg = `${fileName} => ${oFName} completed!`
-              // printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
-              // const outputSize = fs.statSync(oPath).size
-              // printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
-
-              // conversions.push({
-              //   input: file.fsPath,
-              //   output: oPath,
-              //   time: ms,
-              //   inputSize,
-              //   outputSize
-              // })
-
+                conversions.push({
+                  input: file.fsPath,
+                  output: oPath,
+                  time: ms,
+                  inputSize,
+                  outputSize
+                })
+              })
             } catch (error: any) {
               if (error.message === 'ffmpeg was killed with signal SIGKILL') printToChannel('Conversion was canceled')
               else showPrintErrorMsg(error)
@@ -111,8 +113,8 @@ export default class ConverterQueue {
         `Batch conversion completed: ${completed}/${totalFiles} files.\nOutput directory: ${outputDir}`
       )
     } catch (error) {
-      printToChannel(`Batch conversion failed: ${error}`)
-      showInformationMessage('Batch conversion failed. Check the output panel for details.')
+      printToChannel(`Batch conversion error: ${error}`)
+      showInformationMessage('Batch conversion error. Check the output panel for details.')
     } finally {
       this.isProcessing = false
     }
@@ -191,7 +193,7 @@ export default class ConverterQueue {
         .on('end', () => {
           avgFps = avgFps && totalFps ? round((avgFps + totalFps / count1) / 2) : -1
           avgKbps = avgKbps && totalKbps ? round((avgKbps + totalKbps / count2) / 2) : -1
-          printToChannel('[ffmpeg] finished')
+          // console.debug('[ffmpeg] finished')
           printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
           resolve()
         })
@@ -230,7 +232,7 @@ export default class ConverterQueue {
     summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`)
     summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`)
 
-    const summaryPath = path.join(outputDir, `conversion_summary_${Date.now()}.txt`)
+    const summaryPath = path.join(outputDir, `summary${getFormattedDate()}-${files.length}.txt`)
     fs.writeFileSync(summaryPath, summary.join('\n'))
     printToChannel(`Summary written to: ${summaryPath}`)
   }

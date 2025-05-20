@@ -1,7 +1,8 @@
-import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { commands, window } from 'vscode'
-import Converter from './Converter'
+import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
+import Converter from './Converter'
+
 const { showInformationMessage } = window
 
 export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
@@ -51,7 +52,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     })
     if (dup.length) {
       const dupNames = dup.map(item => item.path.split('/').pop()).join(', ')
-      showInformationMessage(`Files already in queue: ${dupNames}`)
+      showInformationMessage(`${dup.length} file(s) already in queue: ${dupNames}`)
     }
     this.queue.sort((a, b) => a.fsPath.localeCompare(b.fsPath))
     this.updateItemCount()
@@ -62,12 +63,14 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   removeFromQueue(targetItem: TreeItem): void {
     this.queue = this.queue.filter((item) => item !== targetItem.resourceUri)
     this.updateItemCount()
+    this.updateBatchConvertibleStatus()
     this.refresh()
   }
 
   clearQueue(): void {
     this.queue = []
     this.updateItemCount()
+    this.updateBatchConvertibleStatus()
     this.refresh()
   }
 
@@ -96,6 +99,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   }
 
   isQueueConvertible(): boolean {
+    if (this.queue.length === 0) return false
     if (this.getConvertFormatOptions().length === 0) return false
     return true
   }
