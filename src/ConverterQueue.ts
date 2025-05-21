@@ -6,7 +6,7 @@ import * as path from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 import {
-  channel, createDir, durationToSec, fmtMSS, getFormattedDate, getOutDirName, getWorkspacePath, printToChannel, round, 
+  channel, createDir, durationToSec, fmtMSS, getFormattedDate, getOutDirName, getWorkspacePath, printToChannel, round,
   showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'

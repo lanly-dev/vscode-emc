@@ -84,7 +84,7 @@
         "icon": "$(clear-all)"
       },
       {
-        "command": "emc.showInfo",
+        "command": "emc.showQueueInfo",
         "title": "EMC: show information",
         "icon": "$(info)"
       },
@@ -127,6 +127,26 @@
         {
           "command": "emc.convertWav",
           "when": "false"
+        },
+        {
+          "command": "emc.addToQueue",
+          "when": "false"
+        },
+        {
+          "command": "emc.removeFromQueue",
+          "when": "false"
+        },
+        {
+          "command": "emc.clearQueue",
+          "when": "false"
+        },
+        {
+          "command": "emc.showQueueInfo",
+          "when": "false"
+        },
+        {
+          "command": "emc.startConversion",
+          "when": "false"
         }
       ],
       "explorer/context": [
@@ -165,7 +185,7 @@
         },
         {
           "view": "emcTreeView",
-          "command": "emc.showInfo",
+          "command": "emc.showQueueInfo",
           "group": "navigation",
           "when": "view == emcTreeView && emcItemCount > 0"
         },

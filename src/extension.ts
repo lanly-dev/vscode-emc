@@ -40,7 +40,8 @@ export function activate(context: ExtensionContext) {
       }
       Object.values(MediaFileType).includes(selected as MediaFileType)
       ConverterQueue.convert(treeViewProvider.queue, selected as MediaFileType)
-    })
+    }),
+    rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo())
   ])
 
   // this is for the batch convert file chooser

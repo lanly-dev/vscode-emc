@@ -1,7 +1,7 @@
 import { commands, window } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
-import Converter from './Converter'
+import pb from 'pretty-bytes'
 
 const { showInformationMessage } = window
 
@@ -104,18 +104,68 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     return true
   }
 
-  async startConvert(): Promise<void> {
-    for (const file of this.queue) {
-      try {
-        console.log(`Converting: ${file.fsPath}`)
-        await Converter.convert(file, MediaFileType.MP4) // Replace with desired format
-        console.log(`Successfully converted: ${file.fsPath}`)
-      } catch (error) {
-        console.error(`Failed to convert: ${file.fsPath}`, error)
-      }
+  async showQueueInfo(): Promise<void> {
+    if (this.queue.length === 0) {
+      showInformationMessage('Queue is empty.')
+      return
     }
 
-    console.log('Batch conversion completed')
-    this.clearQueue()
+    // Define type categories
+    const imageExts = ['jpg', 'jpeg', 'png', 'webp']
+    const videoExts = ['avi', 'flv', 'mkv', 'mp4', 'ts', 'webm', 'wmv']
+    const audioExts = ['ape', 'flac', 'mp3', 'wav', 'wma']
+
+    // Categorize files and count types per category
+    type Category = 'image' | 'video' | 'audio' | 'other'
+    const categoryTypeCount: Record<Category, Record<string, number>> = {
+      image: {},
+      video: {},
+      audio: {},
+      other: {}
+    }
+    const categoryCount: Record<Category, number> = {
+      image: 0,
+      video: 0,
+      audio: 0,
+      other: 0
+    }
+    let totalSize = 0
+
+    for (const file of this.queue) {
+      const ext = file.fsPath.split('.').pop()?.toLowerCase() || 'unknown'
+      let cat: Category
+      if (imageExts.includes(ext)) cat = 'image'
+      else if (videoExts.includes(ext)) cat = 'video'
+      else if (audioExts.includes(ext)) cat = 'audio'
+      else cat = 'other'
+
+      categoryCount[cat]++
+      categoryTypeCount[cat][ext] = (categoryTypeCount[cat][ext] || 0) + 1
+
+      const stat = await (await import('fs/promises')).stat(file.fsPath)
+      totalSize += stat.size
+    }
+
+    // Build summary per category
+    const categorySummary = Object.entries(categoryCount)
+      .filter(([, count]) => count > 0)
+      .map(([cat, count]) => {
+        const types = Object.entries(categoryTypeCount[cat as Category])
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([ext, cnt]) => `${ext}-${cnt}`)
+          .join(', ')
+        return `${cat}: ${count} (${types})`
+      })
+      .join('\n')
+
+    const availableFormats = this.getConvertFormatOptions().join(', ') || 'None'
+
+    showInformationMessage(
+      `Queue: ${this.queue.length} file(s)\n` +
+      `Categories:\n${categorySummary}\n` +
+      `Total size: ${pb(totalSize)}\n` +
+      `Available conversion: ${availableFormats}`,
+      { modal: true }
+    )
   }
 }
