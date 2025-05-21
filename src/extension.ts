@@ -19,8 +19,9 @@ const { MP3, MP4, JPG, WAV } = MediaFileType
 export function activate(context: ExtensionContext) {
   init()
   const treeViewProvider = new TreeViewProvider()
-  window.registerTreeDataProvider('emcTreeView', treeViewProvider)
+  setupTreeview(treeViewProvider)
   const rc = commands.registerCommand
+
   context.subscriptions.concat([
     rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, MP3)),
     rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
@@ -74,6 +75,18 @@ function init() {
     printToChannel(MSG)
   }
   printToChannel('Easy Media Converter activate successfully!')
+}
+
+function setupTreeview(treeViewProvider: TreeViewProvider) {
+  // Hybrid treeview - declare in package.json but not use registerTreeDataProvider()
+  // createTreeView() actually doesn't need to declare in package.json
+  const treeview = window.createTreeView('emcTreeView', { treeDataProvider: treeViewProvider })
+  treeViewProvider.onDidChangeTreeData(e => {
+    const itemCount = treeViewProvider.queue.length
+    treeview.badge = itemCount
+      ? { value: itemCount, tooltip: `${itemCount} item(s) in queue` }
+      : undefined
+  })
 }
 
 function revealFfmpegBin() {

@@ -100,7 +100,7 @@
           "id": "emcTreeView",
           "name": "emc",
           "contextualTitle": "EMC",
-          "icon": "$(rocket)"
+          "icon": "media/emc.svg"
         }
       ]
     },

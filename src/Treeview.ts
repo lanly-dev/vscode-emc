@@ -154,7 +154,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([ext, cnt]) => `${ext}-${cnt}`)
           .join(', ')
-        return `${cat}: ${count} (${types})`
+        return `  ${cat.charAt(0).toUpperCase() + cat.slice(1)}: ${count} (${types})`
       })
       .join('\n')
 
