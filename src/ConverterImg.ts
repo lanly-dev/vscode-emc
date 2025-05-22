@@ -31,7 +31,7 @@ export default class ConverterImg {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)
       const fileName = path.split('/').pop()
-      const name = fileName?.split('.')[0]
+      const name = fileName!.substring(0, fileName!.lastIndexOf('.'))
       const dir = fsPath.replace(fileName!, '')
       const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
 

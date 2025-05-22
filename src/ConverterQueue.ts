@@ -50,7 +50,7 @@ export default class ConverterQueue {
     const outputDir = path.join(wsPath, getOutDirName())
     try {
       await createDir(Uri.file(outputDir))
-      showInformationMessage(`Output directory created: ${outputDir}`)
+      printToChannel(`Output directory created: ${outputDir}`)
     } catch (error: any) {
       showPrintErrorMsg(error)
       this.isProcessing = false
@@ -64,6 +64,7 @@ export default class ConverterQueue {
         title: 'Batch Converting',
         cancellable: true
       }, async (progress, token) => {
+        const namesTemp: (string)[] =  []
         for (let i = 0; i < files.length; i += this.MAX_CONCURRENT) {
           if (token.isCancellationRequested) {
             showInformationMessage('Batch conversion canceled')
@@ -77,7 +78,10 @@ export default class ConverterQueue {
               printToChannel(`Processing file ${++completed}/${totalFiles}: ${file.fsPath} - size: ${pb(inputSize)}`)
 
               const fileName = file.path.split('/').pop()
-              const name = fileName?.replace('.', '_')
+              let name = fileName!.substring(0, fileName!.lastIndexOf('.'))
+              if (namesTemp.includes(name!)) name = fileName!.replace('.', '_')
+              else namesTemp.push(name!)
+
               const oPath = path.join(outputDir, `${name}.${type}`)
               const oFName = path.basename(oPath)
 
@@ -211,11 +215,33 @@ export default class ConverterQueue {
     let totalOutputSize = 0
     let totalTime = 0
 
-    files.forEach((file, index) => {
+    let reducedCount = 0
+    let increasedCount = 0
+    let sameCount = 0
+
+    files.forEach((file) => {
       totalInputSize += file.inputSize
       totalOutputSize += file.outputSize
       totalTime += file.time
 
+      if (file.outputSize < file.inputSize) reducedCount++
+      else if (file.outputSize > file.inputSize) increasedCount++
+      else sameCount++
+    })
+
+    summary.push(`Files Reduced in Size: ${reducedCount}`)
+    summary.push(`Files Increased in Size: ${increasedCount}`)
+    summary.push(`Files with Same Size: ${sameCount}`)
+
+    summary.push(`Total Files: ${files.length}`)
+    summary.push(`Total Input Size: ${pb(totalInputSize)}`)
+    summary.push(`Total Output Size: ${pb(totalOutputSize)}`)
+    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`)
+    summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`)
+    summary.push('')
+
+    // Then print details for each file
+    files.forEach((file, index) => {
       summary.push(`File ${index + 1}:`)
       summary.push(`Input: ${file.input}`)
       summary.push(`Output: ${file.output}`)
@@ -224,13 +250,6 @@ export default class ConverterQueue {
       summary.push(`Output Size: ${pb(file.outputSize)}`)
       summary.push('')
     })
-
-    summary.push('Summary:')
-    summary.push(`Total Files: ${files.length}`)
-    summary.push(`Total Input Size: ${pb(totalInputSize)}`)
-    summary.push(`Total Output Size: ${pb(totalOutputSize)}`)
-    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`)
-    summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`)
 
     const summaryPath = path.join(outputDir, `summary${getFormattedDate()}-${files.length}.txt`)
     fs.writeFileSync(summaryPath, summary.join('\n'))
