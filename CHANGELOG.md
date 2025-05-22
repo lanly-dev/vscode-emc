@@ -5,11 +5,11 @@ All notable changes to the "Easy Media Converter" extension will be documented i
 Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how to structure this file.
 
 ## [Future Works]
-- Merging feature
-- Show media information
-- Integrate with Spectrogram extension
 - Drag and drop to queue
 - FileChooser for queue
+- Integrate with Spectrogram extension
+- Merging feature
+- Show media information
 - Time estimation for batch conversion
 - Update/fix icon/logo
 
@@ -19,9 +19,11 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
   - Output conversion summary
   - Low-key has `mp3cd` option for my own CD use case
   - Has icon and badge \
-    ![treeview](/media/vscodeignore/treeview.png)
+    ![treeview](https://github.com/lanly-dev/vscode-emc/raw/main/media/vscodeignore/treeview.png)
 - Add time estimation for single converting
 - Fix Eslint configs
+- webpack 5.99.9 compiled with 1 warning in 2135 ms
+- 10 files, 144.58 KB, 1.100.0
 
 ## Notes
 - `registerTreeDataProvider()` vs `createTreeView()`
