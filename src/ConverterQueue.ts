@@ -1,5 +1,5 @@
 import { performance as perf } from 'perf_hooks'
-import { ProgressLocation, Uri, workspace, window } from 'vscode'
+import { ProgressLocation, Uri, workspace, window, commands } from 'vscode'
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -21,11 +21,6 @@ export default class ConverterQueue {
 
   static async convert(files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
-    if (this.isProcessing) {
-      // Need to set context
-      showInformationMessage('A batch conversion is already in progress')
-      return
-    }
 
     if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
@@ -36,24 +31,27 @@ export default class ConverterQueue {
       return
     }
 
-    this.isProcessing = true
-    const totalFiles = files.length
-    let completed = 0
-
-    // TODO: figure out if need default directory
     const wsPath = getWorkspacePath()
     if (!wsPath) {
       showInformationMessage('No workspace folder found. Please open a workspace folder to save the converted files.')
-      this.isProcessing = false
       return
     }
+
+    this.isProcessing = true
+    await commands.executeCommand('setContext', 'emcQueueRunning', true)
+
+    const totalFiles = files.length
+    let completed = 0
+
+    const batchStartTime = perf.now()
     const outputDir = path.join(wsPath, getOutDirName())
     try {
       await createDir(Uri.file(outputDir))
-      printToChannel(`Output directory created: ${outputDir}`)
+      printToChannel(`📁Output directory created: ${outputDir}`)
     } catch (error: any) {
       showPrintErrorMsg(error)
       this.isProcessing = false
+      await commands.executeCommand('setContext', 'emcQueueRunning', false)
       return
     }
 
@@ -64,7 +62,7 @@ export default class ConverterQueue {
         title: 'Batch Converting',
         cancellable: true
       }, async (progress, token) => {
-        const namesTemp: (string)[] =  []
+        const namesTemp: (string)[] = []
         for (let i = 0; i < files.length; i += this.MAX_CONCURRENT) {
           if (token.isCancellationRequested) {
             showInformationMessage('Batch conversion canceled')
@@ -112,7 +110,9 @@ export default class ConverterQueue {
           await Promise.all(p)
         }
       })
-      this.writeSummary(conversions, outputDir)
+      const batchEndTime = perf.now()
+      const totalElapsedTime = Math.round(batchEndTime - batchStartTime)
+      this.writeSummary(conversions, outputDir, totalElapsedTime)
       showInformationMessage(
         `Batch conversion completed: ${completed}/${totalFiles} files.\nOutput directory: ${outputDir}`
       )
@@ -121,6 +121,7 @@ export default class ConverterQueue {
       showInformationMessage('Batch conversion error. Check the output panel for details.')
     } finally {
       this.isProcessing = false
+      await commands.executeCommand('setContext', 'emcQueueRunning', false)
     }
   }
 
@@ -146,7 +147,6 @@ export default class ConverterQueue {
       const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
       let command = ffmpeg(input).format(type)
       if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc')
-      console.debug(`output: ${output}, input: ${input}, type: ${type}`)
       command = command.save(output)
         .on('codecData', ({ duration }: CodecData) => totalTime = durationToSec(duration))
         .on('progress', (prog: ConversionProgress) => {
@@ -208,12 +208,12 @@ export default class ConverterQueue {
     })
   }
 
-  private static writeSummary(files: ConversionResult[], outputDir: string): void {
+  private static writeSummary(files: ConversionResult[], outputDir: string, totalElapsedTime: number): void {
     const summary = [`Batch Conversion Summary (${new Date().toLocaleString()})`, '']
 
     let totalInputSize = 0
     let totalOutputSize = 0
-    let totalTime = 0
+    let totalProcessingTime = 0
 
     let reducedCount = 0
     let increasedCount = 0
@@ -222,25 +222,37 @@ export default class ConverterQueue {
     files.forEach((file) => {
       totalInputSize += file.inputSize
       totalOutputSize += file.outputSize
-      totalTime += file.time
+      totalProcessingTime += file.time
 
       if (file.outputSize < file.inputSize) reducedCount++
       else if (file.outputSize > file.inputSize) increasedCount++
       else sameCount++
     })
 
-    summary.push(`Files Reduced in Size: ${reducedCount}`)
-    summary.push(`Files Increased in Size: ${increasedCount}`)
-    summary.push(`Files with Same Size: ${sameCount}`)
+    // List file numbers for each category
+    const reducedFiles = files
+      .map((file, idx) => file.outputSize < file.inputSize ? idx + 1 : null)
+      .filter((n) => n !== null)
+      .join(', ')
+    const increasedFiles = files
+      .map((file, idx) => file.outputSize > file.inputSize ? idx + 1 : null)
+      .filter((n) => n !== null)
+      .join(', ')
 
     summary.push(`Total Files: ${files.length}`)
+    if (reducedCount > 0) summary.push(`Files Reduced in Size: ${reducedCount} - [${reducedFiles}]`)
+    else summary.push(`Files Reduced in Size: ${reducedCount}`)
+    if (increasedCount > 0) summary.push(`Files Increased in Size: ${increasedCount} - [${increasedFiles}]`)
+    else summary.push(`Files Increased in Size: ${increasedCount}`)
+    summary.push(`Files with Same Size: ${sameCount}`)
+
     summary.push(`Total Input Size: ${pb(totalInputSize)}`)
     summary.push(`Total Output Size: ${pb(totalOutputSize)}`)
-    summary.push(`Total Processing Time: ${fmtMSS(totalTime)}`)
+    summary.push(`Total Processing Time: ${fmtMSS(totalProcessingTime)}`)
+    summary.push(`Total Elapsed Time: ${fmtMSS(totalElapsedTime)}`)
     summary.push(`Size Reduction: ${((1 - totalOutputSize / totalInputSize) * 100).toFixed(2)}%`)
     summary.push('')
 
-    // Then print details for each file
     files.forEach((file, index) => {
       summary.push(`File ${index + 1}:`)
       summary.push(`Input: ${file.input}`)
@@ -253,6 +265,6 @@ export default class ConverterQueue {
 
     const summaryPath = path.join(outputDir, `summary${getFormattedDate()}-${files.length}.txt`)
     fs.writeFileSync(summaryPath, summary.join('\n'))
-    printToChannel(`Summary written to: ${summaryPath}`)
+    printToChannel(`🗒️Summary written to: ${summaryPath}`)
   }
 }

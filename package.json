@@ -181,7 +181,7 @@
           "view": "emcTreeView",
           "command": "emc.clearQueue",
           "group": "navigation",
-          "when": "view == emcTreeView && emcItemCount > 0"
+          "when": "view == emcTreeView && emcItemCount > 0 && !emcQueueRunning"
         },
         {
           "view": "emcTreeView",
@@ -193,7 +193,7 @@
           "view": "emcTreeView",
           "command": "emc.startConversion",
           "group": "navigation",
-          "when": "view == emcTreeView && emcQueueConvertible"
+          "when": "view == emcTreeView && emcQueueConvertible && !emcQueueRunning"
         }
       ],
       "view/item/context": [
