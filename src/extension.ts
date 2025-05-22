@@ -77,8 +77,6 @@ function init() {
 }
 
 function setupTreeview(treeViewProvider: TreeViewProvider) {
-  // Hybrid treeview - declare in package.json but not use registerTreeDataProvider()
-  // createTreeView() actually doesn't need to declare in package.json
   const treeview = window.createTreeView('emcTreeView', { treeDataProvider: treeViewProvider })
   treeViewProvider.onDidChangeTreeData(e => {
     const itemCount = treeViewProvider.queue.length

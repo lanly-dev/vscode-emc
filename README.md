@@ -13,16 +13,21 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
 - For image: `jpg|jpeg|png|webp` --> Convert to `jpg`
 - For audio: `ape|flac|mp3|wav|wma` --> Convert to `mp3|wav`
 - For video: `avi|flv|mkv|mp4|ts|webm|wmv` --> Convert to `mp4`
+- Batch conversion
 
 - Other use cases:
   - Extract audio from video by converting it to an audio format
-  - Converting to the same format can reduce file size
+  - Converting to the same format to reduce its size (and quality, as reducing size often results in quality loss) in some cases if you want a smaller size, if it increases the file size - just stick with the original
 
-> Note: All conversion settings use the default configuration of ffmpeg
+> Note: All conversion settings use the default configuration of ffmpeg except for `mp3cd` options in batch conversion
 
 ## Release Notes
+### 2.0.0
+- Add treeview/queue for batch conversion
+- Add time estimation for single converting
+
 ### 1.1.0
-- Added support for image conversion: `jpg|jpeg|png|webp`
+- Add support for image conversion: `jpg|jpeg|png|webp`
 - Add `webm` for video conversion
 - Add GPU `h264_nvenc` option for faster video encoding using Nvidia GPUs
 
