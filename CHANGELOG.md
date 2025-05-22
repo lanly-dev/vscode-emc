@@ -16,10 +16,10 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 ## [2.0.0] - May 2025
 - Add treeview - the main feature
   - Shows the queue and queue's info
-  - Has icon and badge
   - Output conversion summary
   - Low-key has `mp3cd` option for my own CD use case
-  ![treeview](/media/vscodeignore/treeview.png)
+  - Has icon and badge \
+    ![treeview](/media/vscodeignore/treeview.png)
 - Add time estimation for single converting
 - Fix Eslint configs
 
