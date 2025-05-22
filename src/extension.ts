@@ -39,13 +39,12 @@ export function activate(context: ExtensionContext) {
         showErrorMessage('EMC: No option selected')
         return
       }
-      Object.values(MediaFileType).includes(selected as MediaFileType)
-      ConverterQueue.convert(treeViewProvider.queue, selected as MediaFileType)
+      ConverterQueue.convert(treeViewProvider.queue, selected.label as MediaFileType)
     }),
     rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo())
   ])
 
-  // this is for the batch convert file chooser
+  // TODO: this is for the batch convert file chooser
   // context.subscriptions.push(
   //   commands.registerCommand('emc.addToBatchConvert', async () => {
   //     const files = await window.showOpenDialog({

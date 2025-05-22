@@ -1,4 +1,4 @@
-import { commands, window } from 'vscode'
+import { commands, QuickPickItem, window } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
 import pb from 'pretty-bytes'
@@ -74,27 +74,32 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     this.refresh()
   }
 
-  getConvertFormatOptions(): string[] {
+  // QuickPickItem can have icon
+  getConvertFormatOptions(): QuickPickItem[] {
     const options = []
     const isImageConvertible = this.queue.every((file) => {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && ['jpg', 'jpeg', 'png', 'webp'].includes(ext)
     })
-    if (isImageConvertible) options.push(MediaFileType.JPG)
+    if (isImageConvertible) options.push({ label: MediaFileType.JPG, description: 'Convert to JPG' })
 
     const vFormat = ['avi', 'flv', 'mkv', 'mp4', 'ts', 'webm', 'wmv']
     const isVideoConvertible = this.queue.every((file) => {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && vFormat.includes(ext)
     })
-    if (isVideoConvertible) options.push(MediaFileType.MP4)
+    if (isVideoConvertible) options.push({ label: MediaFileType.MP4, description: 'Convert to MP4' })
 
     const aFormat = ['ape', 'flac', 'mp3', 'wav', 'wma'].concat(vFormat)
     const isAudioConvertible = this.queue.every((file) => {
       const ext = file.fsPath.split('.').pop()?.toLowerCase()
       return ext && aFormat.includes(ext)
     })
-    if (isAudioConvertible) options.push(MediaFileType.MP3)
+    if (isAudioConvertible) {
+      options.push({ label: MediaFileType.MP3, description: 'Convert to MP3' })
+      options.push({ label: MediaFileType.WAV, description: 'Convert to WAV' })
+      options.push({ label: MediaFileType.MP3CD, description: 'Convert to MP3 (CD optimized)' })
+    }
     return options
   }
 
@@ -158,7 +163,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
       })
       .join('\n')
 
-    const availableFormats = this.getConvertFormatOptions().join(', ') || 'None'
+    const availableFormats = this.getConvertFormatOptions().map(option => option.label).join(', ')
 
     showInformationMessage(
       `Queue: ${this.queue.length} file(s)\n` +

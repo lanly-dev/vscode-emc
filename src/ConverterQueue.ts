@@ -6,8 +6,8 @@ import * as path from 'path'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 import {
-  channel, createDir, durationToSec, fmtMSS, getFormattedDate, getOutDirName, getWorkspacePath, printToChannel, round,
-  showPrintErrorMsg
+  channel, createDir, durationToSec, fmtMSS, fmtTimeLeft, getFormattedDate,
+  getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
 
@@ -17,7 +17,6 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 
 export default class ConverterQueue {
   private static readonly MAX_CONCURRENT = 3
-  private static isProcessing = false
 
   static async convert(files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
@@ -37,7 +36,6 @@ export default class ConverterQueue {
       return
     }
 
-    this.isProcessing = true
     await commands.executeCommand('setContext', 'emcQueueRunning', true)
 
     const totalFiles = files.length
@@ -50,7 +48,6 @@ export default class ConverterQueue {
       printToChannel(`📁Output directory created: ${outputDir}`)
     } catch (error: any) {
       showPrintErrorMsg(error)
-      this.isProcessing = false
       await commands.executeCommand('setContext', 'emcQueueRunning', false)
       return
     }
@@ -77,11 +74,13 @@ export default class ConverterQueue {
 
               const fileName = file.path.split('/').pop()
               let name = fileName!.substring(0, fileName!.lastIndexOf('.'))
+              // If the name already exists, replace . with _
               if (namesTemp.includes(name!)) name = fileName!.replace('.', '_')
               else namesTemp.push(name!)
 
-              const oPath = path.join(outputDir, `${name}.${type}`)
-              const oFName = path.basename(oPath)
+              const oType = type === MediaFileType.MP3CD ? MediaFileType.MP3 : type
+              const oPath = path.join(outputDir, `${name}.${oType}`)
+              const oName = path.basename(oPath)
 
               const t0 = perf.now()
               const theP = this.convertFiles(type, file.fsPath, oPath, progress, token, completed, totalFiles)
@@ -89,7 +88,7 @@ export default class ConverterQueue {
               theP.then(() => {
                 const t1 = perf.now()
                 const ms = Math.round(t1 - t0)
-                const msg = `${fileName} => ${oFName} completed!`
+                const msg = `${fileName} => ${oName} completed!`
                 printToChannel(`${msg}\nTotal time: ${fmtMSS(ms)}`)
                 const outputSize = fs.statSync(oPath).size
                 printToChannel(`File output: ${oPath} - size: ${pb(outputSize)}\n`)
@@ -120,7 +119,6 @@ export default class ConverterQueue {
       printToChannel(`Batch conversion error: ${error}`)
       showInformationMessage('Batch conversion error. Check the output panel for details.')
     } finally {
-      this.isProcessing = false
       await commands.executeCommand('setContext', 'emcQueueRunning', false)
     }
   }
@@ -145,8 +143,20 @@ export default class ConverterQueue {
       let startTime = Date.now()
 
       const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
-      let command = ffmpeg(input).format(type)
-      if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc')
+      let command = ffmpeg(input)
+
+      if (type === MediaFileType.MP3CD) {
+        command = command
+          .format('mp3')
+          .audioBitrate(128)
+          .audioChannels(2) // 2 for stereo, 1 for mono
+          .audioQuality(7)  // VBR quality: 0 (best) to 9 (worst)
+          .outputOptions(['-compression_level', '0'])  // Maximum compression
+      } else {
+        command = command.format(type)
+        if (enableGpu && type === MediaFileType.MP4) command = command.videoCodec('h264_nvenc')
+      }
+
       command = command.save(output)
         .on('codecData', ({ duration }: CodecData) => totalTime = durationToSec(duration))
         .on('progress', (prog: ConversionProgress) => {
@@ -166,19 +176,10 @@ export default class ConverterQueue {
             count2++
           }
 
-          // Calculate time estimation
           const elapsedTime = (Date.now() - startTime) / 1000
           const estimatedTotalTime = (elapsedTime * 100) / percent
           const estimatedTimeLeft = Math.max(0, estimatedTotalTime - elapsedTime)
-
-          const hours = Math.floor(estimatedTimeLeft / 3600)
-          const minutes = Math.floor((estimatedTimeLeft % 3600) / 60)
-          const seconds = Math.floor(estimatedTimeLeft % 60)
-          const timeLeftMessage = hours > 0
-            ? `${hours}h ${minutes}m ${seconds}s left`
-            : minutes > 0
-              ? `${minutes}m ${seconds}s left`
-              : `${seconds}s left`
+          const timeLeftMessage = fmtTimeLeft(estimatedTimeLeft)
 
           progress.report({
             message: `File ${current}/${total}: ${round(percent)}% - ${timeLeftMessage}` +

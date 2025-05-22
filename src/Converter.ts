@@ -6,7 +6,10 @@ import * as fs from 'fs'
 import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-import { channel, durationToSec, fmtMSS, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
+import {
+  channel, durationToSec, fmtMSS, fmtTimeLeft,
+  getOutFile, printToChannel, round, showPrintErrorMsg
+} from './utils'
 import { MediaFileType } from './interfaces'
 
 ffmpeg.setFfmpegPath(pathToFfmpeg!)
@@ -100,15 +103,7 @@ export default class Converter {
             const elapsedTime = (Date.now() - startTime) / 1000 // in seconds
             const estimatedTotalTime = (elapsedTime * 100) / percent
             const estimatedTimeLeft = Math.max(0, estimatedTotalTime - elapsedTime)
-
-            const hours = Math.floor(estimatedTimeLeft / 3600)
-            const minutes = Math.floor((estimatedTimeLeft % 3600) / 60)
-            const seconds = Math.floor(estimatedTimeLeft % 60)
-            const timeLeftMessage = hours > 0
-              ? `${hours}h ${minutes}m ${seconds}s left`
-              : minutes > 0
-                ? `${minutes}m ${seconds}s left`
-                : `${seconds}s left`
+            const timeLeftMessage = fmtTimeLeft(estimatedTimeLeft)
 
             progress.report({
               message: `${round(percent)}% - ${timeLeftMessage}${fps > 0 ? ` (${round(fps)} fps)` : ''}`
@@ -126,7 +121,7 @@ export default class Converter {
           .on('end', () => {
             avgFps = avgFps && totalFps ? round((avgFps + totalFps / count1) / 2) : -1
             avgKbps = avgKbps && totalKbps ? round((avgKbps + totalKbps / count2) / 2) : -1
-            // console.debug('[ffmpeg] finished')
+            console.debug('[ffmpeg] finished')
             printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
             resolve()
           })

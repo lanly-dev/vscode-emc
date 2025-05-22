@@ -1,6 +1,7 @@
 export enum MediaFileType {
   JPG = 'jpg',
   MP3 = 'mp3',
+  MP3CD = 'mp3cd',
   MP4 = 'mp4',
   WAV = 'wav',
   WEBP = 'webp',

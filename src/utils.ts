@@ -14,11 +14,25 @@ export function round(num: number) {
   return Math.round((num + Number.EPSILON) * 100) / 100
 }
 
-// M:SS
+// Format seconds into H:MM:SS or M:SS
 export function fmtMSS(ms: number) {
-  let s = Math.round(ms / 1000)
-  if (s < 60) return `${s} sec`
-  return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s
+  const seconds = Math.round(ms / 1000)
+  if (seconds < 60) return `${seconds} sec`
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+// Format seconds into "Xh Ym Zs left" format
+export function fmtTimeLeft(seconds: number) {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  if (h > 0) return `${h}h ${m}m ${s}s left`
+  if (m > 0) return `${m}m ${s}s left`
+  return `${s}s left`
 }
 
 export function durationToSec(duration: string) {
