@@ -145,17 +145,8 @@ export default class ConverterQueue {
       const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
       let command = ffmpeg(input)
 
-      if (type === MediaFileType.MP3CD) {
-        command = command
-          .format('mp3')
-          .audioBitrate(128)
-          .audioChannels(2) // 2 for stereo, 1 for mono
-          .audioQuality(7)  // VBR quality: 0 (best) to 9 (worst)
-          .outputOptions(['-compression_level', '0'])  // Maximum compression
-      } else {
-        command = command.format(type)
-        if (enableGpu && type === MediaFileType.MP4) command = command.videoCodec('h264_nvenc')
-      }
+      command = command.format(type)
+      if (enableGpu && type === MediaFileType.MP4) command = command.videoCodec('h264_nvenc')
 
       command = command.save(output)
         .on('codecData', ({ duration }: CodecData) => totalTime = durationToSec(duration))
