@@ -98,7 +98,6 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     if (isAudioConvertible) {
       options.push({ label: MediaFileType.MP3, description: 'Convert to MP3' })
       options.push({ label: MediaFileType.WAV, description: 'Convert to WAV' })
-      options.push({ label: MediaFileType.MP3CD, description: 'Convert to MP3 (CD optimized)' })
     }
     return options
   }

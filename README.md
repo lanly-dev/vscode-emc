@@ -19,8 +19,6 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
   - Extract audio from video by converting it to an audio format
   - Converting to the same format to reduce its size (and quality, as reducing size often results in quality loss) in some cases if you want a smaller size, if it increases the file size - just stick with the original
 
-> Note: All conversion settings use the default configuration of ffmpeg except for `mp3cd` options in batch conversion
-
 ## Release Notes
 ### 2.0.0
 - Add treeview/queue for batch conversion

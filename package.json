@@ -62,6 +62,10 @@
         "title": "EMC: Convert to jpg"
       },
       {
+        "command": "emc.convertGif",
+        "title": "EMC: Convert to gif"
+      },
+      {
         "command": "emc.convertWav",
         "title": "EMC: Convert to wav"
       },
@@ -171,6 +175,12 @@
           "group": "emcGroup@2"
         },
         {
+          "command": "emc.convertGif",
+          "title": "EMC: Convert to gif",
+          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
+          "group": "emcGroup@2"
+        },
+        {
           "command": "emc.addToQueue",
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "group": "emcGroup@3"
@@ -214,25 +224,24 @@
     "vsce-package": "vsce package"
   },
   "devDependencies": {
-    "@types/ffmpeg-static": "^3.0.3",
-    "@types/fluent-ffmpeg": "^2.1.27",
-    "@types/node": "22.x",
-    "@types/vscode": "^1.100.0",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
-    "@typescript-eslint/parser": "^8.32.1",
-    "@vscode/vsce": "^3.4.2",
-    "eslint": "^9.27.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
-    "webpack": "^5.99.9",
+    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/node": "24.x",
+    "@types/vscode": "^1.105.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vscode/vsce": "^3.6.2",
+    "eslint": "^9.38.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "@stylistic/eslint-plugin-ts": "^4.2.0",
-    "axios": "^1.9.0",
+    "@stylistic/eslint-plugin-ts": "^4.4.1",
+    "axios": "^1.12.2",
     "ffmpeg-static": "^5.2.0",
     "fluent-ffmpeg": "^2.1.3",
-    "pretty-bytes": "^7.0.0"
+    "pretty-bytes": "^7.1.0"
   },
   "repository": {
     "url": "https://github.com/lanly-dev/vscode-emc"

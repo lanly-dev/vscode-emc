@@ -78,7 +78,7 @@ export default class ConverterQueue {
               if (namesTemp.includes(name!)) name = fileName!.replace('.', '_')
               else namesTemp.push(name!)
 
-              const oType = type === MediaFileType.MP3CD ? MediaFileType.MP3 : type
+              const oType = type
               const oPath = path.join(outputDir, `${name}.${oType}`)
               const oName = path.basename(oPath)
 

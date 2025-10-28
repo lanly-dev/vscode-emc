@@ -27,4 +27,5 @@
   "typescript.tsc.autoDetect": "off",
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
   "seekdf.showDetail": true,
+  "akazas-love.snowInEditor": false,
 }
