@@ -5,7 +5,8 @@ export enum MediaFileType {
   MP4 = 'mp4',
   WAV = 'wav',
   WEBP = 'webp',
-  WEBM = 'webm'
+  WEBM = 'webm',
+  GIF = 'gif'
 }
 
 export interface ConversionResult {
