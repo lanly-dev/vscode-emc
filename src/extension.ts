@@ -6,7 +6,7 @@ import * as path from 'path'
 
 import { download } from './ffmpegFn'
 import { MediaFileType } from './interfaces'
-import { printToChannel } from './utils'
+import { getFfmpegBinPath, printToChannel } from './utils'
 import Converter from './Converter'
 import ConverterGif from './ConverterGif'
 import ConverterImg from './ConverterImg'
@@ -16,7 +16,7 @@ const { showErrorMessage, showInformationMessage } = window
 const { MP3, MP4, JPG, WAV, GIF } = MediaFileType
 
 export function activate(context: ExtensionContext) {
-  const pathToFfmpeg = path.join(context.extensionPath, 'bin', 'ffmpeg')
+  const pathToFfmpeg = getFfmpegBinPath(context.extensionPath)
   ffmpeg.setFfmpegPath(pathToFfmpeg!)
   init(pathToFfmpeg)
   const treeViewProvider = new TreeViewProvider()
@@ -94,11 +94,12 @@ function revealFfmpegBin(pathToFfmpeg: string) {
     return
   }
   if (!fs.existsSync(pathToFfmpeg)) {
-    const msg = 'The ffmpeg binary is unavailable 😐'
+    const msg = `The ffmpeg binary is unavailable at path: ${pathToFfmpeg}`
     showInformationMessage(msg)
     printToChannel(msg)
     return
   }
+  console.log(`Revealing ffmpeg binary at: ${pathToFfmpeg}`)
   commands.executeCommand('revealFileInOS', Uri.file(pathToFfmpeg))
 }
 

@@ -1,4 +1,4 @@
-import { resolve } from 'path'
+import { join, resolve } from 'path'
 import { Uri, window, workspace } from 'vscode'
 import { existsSync } from 'fs'
 import { MediaFileType } from './interfaces'
@@ -64,6 +64,12 @@ export function showPrintErrorMsg(error: Error) {
   const msg = 'Error: conversion failed!'
   printToChannel(`${msg} - ${error.message ?? JSON.stringify(error, null, 2)}\n`)
   showErrorMessage(msg)
+}
+
+export function getFfmpegBinPath(extensionPath: string): string {
+  const pathToFfmpeg = join(extensionPath, 'bin', 'ffmpeg')
+  if (process.platform === 'win32') return pathToFfmpeg + '.exe'
+  return pathToFfmpeg
 }
 
 export function getFormattedDate(date: Date = new Date()): string {
