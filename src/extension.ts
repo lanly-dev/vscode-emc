@@ -2,7 +2,7 @@ import { commands, TreeItem, window } from 'vscode'
 import { ExtensionContext, Uri } from 'vscode'
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import pathToFfmpeg from 'ffmpeg-static'
+import * as path from 'path'
 
 import { download } from './ffmpegFn'
 import { MediaFileType } from './interfaces'
@@ -12,25 +12,25 @@ import ConverterGif from './ConverterGif'
 import ConverterImg from './ConverterImg'
 import ConverterQueue from './ConverterQueue'
 import TreeViewProvider from './Treeview'
-
-ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showErrorMessage, showInformationMessage } = window
 const { MP3, MP4, JPG, WAV, GIF } = MediaFileType
 
 export function activate(context: ExtensionContext) {
-  init()
+  const pathToFfmpeg = path.join(context.extensionPath, 'bin', 'ffmpeg')
+  ffmpeg.setFfmpegPath(pathToFfmpeg!)
+  init(pathToFfmpeg)
   const treeViewProvider = new TreeViewProvider()
   setupTreeview(treeViewProvider)
   const rc = commands.registerCommand
 
   context.subscriptions.concat([
-    rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, MP3)),
-    rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
-    rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(uri, JPG)),
-    rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(uri, GIF)),
-    rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
-    rc('emc.download', download),
-    rc('emc.revealFfmpegBin', revealFfmpegBin),
+    rc('emc.convertMp3', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP3)),
+    rc('emc.convertMp4', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP4)),
+    rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(pathToFfmpeg, uri, JPG)),
+    rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(pathToFfmpeg, uri, GIF)),
+    rc('emc.convertWav', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, WAV)),
+    rc('emc.download', () => download(pathToFfmpeg)),
+    rc('emc.revealFfmpegBin', () => revealFfmpegBin(pathToFfmpeg)),
     rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
     rc('emc.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
     rc('emc.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
@@ -41,7 +41,7 @@ export function activate(context: ExtensionContext) {
         showErrorMessage('EMC: No option selected')
         return
       }
-      ConverterQueue.convert(treeViewProvider.queue, selected.label as MediaFileType)
+      ConverterQueue.convert(pathToFfmpeg, treeViewProvider.queue, selected.label as MediaFileType)
     }),
     rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo())
   ])
@@ -69,7 +69,7 @@ export function activate(context: ExtensionContext) {
   // )
 }
 
-function init() {
+function init(pathToFfmpeg: string) {
   if (!fs.existsSync(pathToFfmpeg!)) {
     const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
     showInformationMessage(MSG)
@@ -88,7 +88,7 @@ function setupTreeview(treeViewProvider: TreeViewProvider) {
   })
 }
 
-function revealFfmpegBin() {
+function revealFfmpegBin(pathToFfmpeg: string) {
   if (!pathToFfmpeg) {
     showErrorMessage('No binary found for the current OS architecture')
     return

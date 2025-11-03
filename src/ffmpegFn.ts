@@ -1,45 +1,53 @@
+
 import { createWriteStream } from 'fs'
 import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, window } from 'vscode'
 import { promisify } from 'util'
-
 import * as fs from 'fs'
 import * as os from 'os'
 import * as stream from 'stream'
-
+import * as path from 'path'
 import axios from 'axios'
-import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
-
 import { channel, printToChannel } from './utils'
 
-const pkg = require('ffmpeg-static/package.json')
 const { showErrorMessage, showInformationMessage } = window
 
-export async function download() {
+export async function download(ffmpegPath: string) {
   channel.show()
-  if (!pathToFfmpeg) {
-    showErrorMessage('No binary found for the current OS architecture')
-    return
-  }
+  const arch = os.arch()
+  const platform = os.platform()
+  let url = ''
+  const binName = platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg'
+  const outDir = path.dirname(ffmpegPath)
+  const outPath = path.join(outDir, binName)
 
-  if (fs.existsSync(pathToFfmpeg)) {
-    const msg = 'The ffmpeg binary is already downloaded, located at: ' + pathToFfmpeg
+  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
+  if (fs.existsSync(outPath)) {
+    const msg = 'The ffmpeg binary is already downloaded, located at: ' + outPath
     showInformationMessage(msg)
     printToChannel(msg)
     return
   }
 
-  const { 'ffmpeg-static': { 'binary-release-tag': rTag } } = pkg
-  const arch = os.arch()
-  const platform = os.platform()
-  const release = rTag
-  const baseUrl = `https://github.com/eugeneware/ffmpeg-static/releases/download/${release}`
-  // b6.0 is the latest release
-  // https://github.com/eugeneware/ffmpeg-static/releases
-  const url = `${baseUrl}/ffmpeg-${platform}-${arch}`
+  // Custom ffmpeg-build URLs - always use latest release
+  const BASE_URL = 'https://github.com/lanly-dev/ffmpeg-build/releases/latest/download'
+  const platformKey = `${platform}-${arch}`
 
-  // Check if URL is valid
+  switch (platformKey) {
+  case 'win32-x64':
+    url = `${BASE_URL}/ffmpeg-windows.exe`
+    break
+  case 'linux-x64':
+    url = `${BASE_URL}/ffmpeg-linux`
+    break
+  case 'darwin-x64':
+    url = `${BASE_URL}/ffmpeg-macos`
+    break
+  default:
+    showErrorMessage('Unsupported platform or architecture for ffmpeg builds')
+    return
+  }  // Check if URL is valid
   try {
     await axios.head(url)
   } catch (e) {
@@ -51,20 +59,23 @@ export async function download() {
 
   const t0 = perf.now()
   printToChannel(`Downloading ffmpeg from ${url}`)
-  await downloadStream(url)
+  await downloadStream(url, outPath)
+
+  // Set executable permissions on Unix-like systems
+  if (platform !== 'win32') fs.chmodSync(outPath, 0o755)
+
   const t1 = perf.now()
   const ms = Math.round(t1 - t0)
-
-  const fileSize = pb(fs.statSync(pathToFfmpeg).size)
-  const msg = `ffmpeg - ${fileSize} - ${ms} ms downloaded successfully! 🚀🚀`
-  const msg2 = 'ffmpeg binary is at: ' + pathToFfmpeg
+  const fileSize = pb(fs.statSync(outPath).size)
+  const msg = `ffmpeg - ${fileSize} - ${ms} ms downloaded and extracted successfully! 🚀🚀`
+  const msg2 = 'ffmpeg binary is at: ' + outPath
   printToChannel(msg)
   showInformationMessage(msg)
   showInformationMessage(msg2)
 }
 
-function downloadStream(url: string) {
-  const writer = createWriteStream(pathToFfmpeg!)
+function downloadStream(url: string, dest: string) {
+  const writer = createWriteStream(dest)
   return window.withProgress({
     location: ProgressLocation.Window,
     title: 'Downloading ffmpeg'
@@ -86,3 +97,5 @@ function downloadStream(url: string) {
     })
   })
 }
+
+

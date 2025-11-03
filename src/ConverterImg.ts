@@ -3,13 +3,11 @@ import { ProgressLocation, Uri, window } from 'vscode'
 
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
 import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
-ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
 const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
@@ -17,8 +15,9 @@ const MSG = 'The ffmpeg binary is not found, please download it by running the `
 // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/1282
 export default class ConverterImg {
 
-  static async convert({ fsPath, path }: Uri, type: MediaFileType) {
+  static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
+    ffmpeg.setFfmpegPath(pathToFfmpeg!)
     if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)

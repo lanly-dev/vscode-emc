@@ -3,24 +3,21 @@ import { ProgressLocation, Uri, workspace, window, commands } from 'vscode'
 import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import * as path from 'path'
-import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 import {
   channel, createDir, durationToSec, fmtMSS, fmtTimeLeft, getFormattedDate,
   getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult, ConversionProgress, CodecData } from './interfaces'
-
-ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
 const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class ConverterQueue {
   private static readonly MAX_CONCURRENT = 3
 
-  static async convert(files: Uri[], type: MediaFileType): Promise<void> {
+  static async convert(pathToFfmpeg: string, files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
-
+    ffmpeg.setFfmpegPath(pathToFfmpeg!)
     if (!fs.existsSync(pathToFfmpeg!)) {
       const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)
