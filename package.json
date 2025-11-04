@@ -226,6 +226,7 @@
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
     "@types/node": "24.x",
+    "@types/tar": "^6.1.13",
     "@types/vscode": "^1.105.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
@@ -238,8 +239,10 @@
   },
   "dependencies": {
     "@stylistic/eslint-plugin-ts": "^4.4.1",
+    "adm-zip": "^0.5.16",
     "axios": "^1.13.1",
-    "pretty-bytes": "^7.1.0"
+    "pretty-bytes": "^7.1.0",
+    "tar": "^7.4.3"
   },
   "repository": {
     "url": "https://github.com/lanly-dev/vscode-emc"
