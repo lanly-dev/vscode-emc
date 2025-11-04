@@ -1,7 +1,6 @@
 import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, Uri, window } from 'vscode'
-
-import * as ffmpeg from 'fluent-ffmpeg'
+import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
@@ -17,8 +16,7 @@ export default class ConverterImg {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
-    ffmpeg.setFfmpegPath(pathToFfmpeg!)
-    if (!fs.existsSync(pathToFfmpeg!)) {
+    if (!fs.existsSync(pathToFfmpeg)) {
       const abortMsg = 'Converting action aborted'
       showInformationMessage(MSG)
       showInformationMessage(abortMsg)
@@ -35,7 +33,7 @@ export default class ConverterImg {
       const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
 
       const t0 = perf.now()
-      await this.ffmpegConvert(fsPath, oPath)
+      await this.ffmpegConvert(pathToFfmpeg, fsPath, oPath)
       const t1 = perf.now()
       const ms = Math.round(t1 - t0)
 
@@ -54,7 +52,7 @@ export default class ConverterImg {
     }
   }
 
-  private static ffmpegConvert(input: string, output: string) {
+  private static ffmpegConvert(pathToFfmpeg: string, input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Converting',
@@ -62,10 +60,27 @@ export default class ConverterImg {
       // There is no progress
     }, () => {
       return new Promise<void>((resolve, reject) => {
-        const command = ffmpeg(input).output(output).format('image2')
-          .on('error', (err) => reject(err))
-          .on('end', () => resolve())
-        command.run()
+        const args = ['-i', input, '-f', 'image2', '-y', output]
+        const ffmpegProcess = spawn(pathToFfmpeg, args)
+        let stderrOutput = ''
+
+        ffmpegProcess.stderr.on('data', (data: Buffer) => {
+          stderrOutput += data.toString()
+        })
+
+        ffmpegProcess.on('close', (code) => {
+          if (code === 0) resolve()
+          else {
+            printToChannel(`[ffmpeg] error: Process exited with code ${code}`)
+            printToChannel(stderrOutput)
+            reject(new Error(`ffmpeg exited with code ${code}`))
+          }
+        })
+
+        ffmpegProcess.on('error', (err) => {
+          printToChannel(`[ffmpeg] error: ${err.message}`)
+          reject(err)
+        })
       })
     })
   }

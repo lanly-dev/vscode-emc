@@ -1,8 +1,6 @@
 import { commands, TreeItem, window } from 'vscode'
 import { ExtensionContext, Uri } from 'vscode'
-import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import * as path from 'path'
 
 import { download } from './ffmpegFn'
 import { MediaFileType } from './interfaces'
@@ -17,7 +15,6 @@ const { MP3, MP4, JPG, WAV, GIF } = MediaFileType
 
 export function activate(context: ExtensionContext) {
   const pathToFfmpeg = getFfmpegBinPath(context.extensionPath)
-  ffmpeg.setFfmpegPath(pathToFfmpeg!)
   init(pathToFfmpeg)
   const treeViewProvider = new TreeViewProvider()
   setupTreeview(treeViewProvider)
