@@ -39,6 +39,7 @@ export function activate(context: ExtensionContext) {
     rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo()),
     rc('emc.changeAudioQuality', changeAudioQuality),
     rc('emc.changeVideoQuality', changeVideoQuality),
+    rc('emc.toggleCustomQuality', toggleCustomQuality),
     rc('emc.toggleGpu', toggleGpu)
   )
 
@@ -117,6 +118,14 @@ async function changeVideoQuality() {
     await config.update('videoQuality', parseInt(input), true)
     treeViewProvider.refresh()
   }
+}
+
+async function toggleCustomQuality() {
+  const config = workspace.getConfiguration('emc')
+  const currentValue = config.get('useCustomQuality', false)
+  await config.update('useCustomQuality', !currentValue, true)
+  treeViewProvider.refresh()
+  showInformationMessage(`Custom quality ${!currentValue ? 'enabled' : 'disabled'}`)
 }
 
 async function startConversionQueue() {

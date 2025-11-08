@@ -35,6 +35,8 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     if (element) {
       // If it's the Settings item, return its children
       if (element.contextValue === 'emcSettingsItem') return Promise.resolve(this.getSettingsChildren())
+      // If it's the Custom Quality item, return its children
+      if (element.contextValue === 'emcSettingCustomQuality') return Promise.resolve(this.getCustomQualityChildren())
       return Promise.resolve([])
     }
 
@@ -67,21 +69,35 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const binCheckItem = new TreeItem(`Bin Check: ${binCheckEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
     binCheckItem.contextValue = 'emcSettingBinCheck'
     binCheckItem.iconPath = new ThemeIcon(binCheckEnabled ? 'check' : 'close')
-    binCheckItem.command = {
-      command: 'emc.toggleBinCheck',
-      title: 'Toggle Bin Check'
-    }
     items.push(binCheckItem)
+
+    // GPU setting
+    const gpuEnabled = config.get('enableGpuAcceleration', false)
+    const gpuItem = new TreeItem(`GPU: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    gpuItem.contextValue = 'emcSettingGpu'
+    gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
+    items.push(gpuItem)
+
+    // Custom Quality setting (parent with collapsible children)
+    const useCustomQuality = config.get('useCustomQuality', false)
+    const customQualityLabel = `Custom Quality: ${useCustomQuality ? 'On' : 'Off'}`
+    const customQualityItem = new TreeItem(customQualityLabel, TreeItemCollapsibleState.Collapsed)
+    customQualityItem.contextValue = 'emcSettingCustomQuality'
+    customQualityItem.iconPath = new ThemeIcon('dashboard')
+    items.push(customQualityItem)
+
+    return items
+  }
+
+  private getCustomQualityChildren(): TreeItem[] {
+    const config = workspace.getConfiguration('emc')
+    const items: TreeItem[] = []
 
     // Video quality setting
     const videoQuality = config.get('videoQuality', 23)
     const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
     videoQualityItem.contextValue = 'emcSettingVideoQuality'
     videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
-    videoQualityItem.command = {
-      command: 'emc.changeVideoQuality',
-      title: 'Change Video Quality'
-    }
     items.push(videoQualityItem)
 
     // Audio quality setting
@@ -89,22 +105,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const audioQualityItem = new TreeItem(`Audio Quality: ${audioQuality}`, TreeItemCollapsibleState.None)
     audioQualityItem.contextValue = 'emcSettingAudioQuality'
     audioQualityItem.iconPath = new ThemeIcon('unmute')
-    audioQualityItem.command = {
-      command: 'emc.changeAudioQuality',
-      title: 'Change Audio Quality'
-    }
     items.push(audioQualityItem)
-
-    // GPU setting
-    const gpuEnabled = config.get('enableGpuAcceleration', false)
-    const gpuItem = new TreeItem(`GPU: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
-    gpuItem.contextValue = 'emcSettingGpu'
-    gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
-    gpuItem.command = {
-      command: 'emc.toggleGpu',
-      title: 'Toggle GPU'
-    }
-    items.push(gpuItem)
 
     return items
   }

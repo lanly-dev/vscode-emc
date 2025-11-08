@@ -42,6 +42,11 @@
           "default": false,
           "description": "Enable GPU acceleration (h264_nvenc - Nvidia) video encoding"
         },
+        "emc.useCustomQuality": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use custom video and audio quality settings instead of defaults"
+        },
         "emc.videoQuality": {
           "type": "number",
           "default": 23,
@@ -113,7 +118,7 @@
       },
       {
         "command": "emc.startConversionQueue",
-        "title": "EMC: start conversionQueue",
+        "title": "EMC: start conversion queue",
         "icon": "$(run-all)"
       },
       {
@@ -129,6 +134,16 @@
       {
         "command": "emc.toggleGpu",
         "title": "EMC: Toggle GPU acceleration",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "emc.toggleCustomQuality",
+        "title": "EMC: Toggle custom quality",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "emc.toggleBinCheck",
+        "title": "EMC: Toggle binary check",
         "icon": "$(settings-gear)"
       }
     ],
@@ -254,6 +269,11 @@
         {
           "command": "emc.changeAudioQuality",
           "when": "viewItem == emcSettingAudioQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.toggleCustomQuality",
+          "when": "viewItem == emcSettingCustomQuality",
           "group": "inline"
         },
         {
