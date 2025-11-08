@@ -66,14 +66,15 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
     // Bin check setting
     const binCheckEnabled = config.get('checkBinary', true)
-    const binCheckItem = new TreeItem(`Bin Check: ${binCheckEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    const binCheckItem =
+      new TreeItem(`Bin Check: ${binCheckEnabled ? 'Found' : 'Not Found'}`, TreeItemCollapsibleState.None)
     binCheckItem.contextValue = 'emcSettingBinCheck'
     binCheckItem.iconPath = new ThemeIcon(binCheckEnabled ? 'check' : 'close')
     items.push(binCheckItem)
 
     // GPU setting
     const gpuEnabled = config.get('enableGpuAcceleration', false)
-    const gpuItem = new TreeItem(`GPU: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    const gpuItem = new TreeItem(`GPU enabled: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
     gpuItem.contextValue = 'emcSettingGpu'
     gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
     items.push(gpuItem)
@@ -81,7 +82,8 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     // Custom Quality setting (parent with collapsible children)
     const useCustomQuality = config.get('useCustomQuality', false)
     const customQualityLabel = `Custom Quality: ${useCustomQuality ? 'On' : 'Off'}`
-    const customQualityItem = new TreeItem(customQualityLabel, TreeItemCollapsibleState.Collapsed)
+    const state = useCustomQuality ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
+    const customQualityItem = new TreeItem(customQualityLabel, state)
     customQualityItem.contextValue = 'emcSettingCustomQuality'
     customQualityItem.iconPath = new ThemeIcon('dashboard')
     items.push(customQualityItem)

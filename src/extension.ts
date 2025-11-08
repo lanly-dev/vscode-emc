@@ -30,15 +30,19 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(pathToFfmpeg, uri, JPG)),
     rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(pathToFfmpeg, uri, GIF)),
     rc('emc.convertWav', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, WAV)),
+
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
+
     rc('emc.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
+    rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
     rc('emc.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
-    rc('emc.startConversionQueue', startConversionQueue),
     rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo()),
+    rc('emc.startConversionQueue', startConversionQueue),
+
     rc('emc.changeAudioQuality', changeAudioQuality),
     rc('emc.changeVideoQuality', changeVideoQuality),
+    rc('emc.openSettings', () => { commands.executeCommand('workbench.action.openSettings', 'emc') }),
     rc('emc.toggleCustomQuality', toggleCustomQuality),
     rc('emc.toggleGpu', toggleGpu)
   )
