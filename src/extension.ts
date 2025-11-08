@@ -1,4 +1,4 @@
-import { commands, TreeItem, window } from 'vscode'
+import { commands, TreeItem, window, workspace } from 'vscode'
 import { ExtensionContext, Uri } from 'vscode'
 import * as fs from 'fs'
 
@@ -40,7 +40,57 @@ export function activate(context: ExtensionContext) {
       }
       ConverterQueue.convert(pathToFfmpeg, treeViewProvider.queue, selected.label as MediaFileType)
     }),
-    rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo())
+    rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo()),
+    rc('emc.changeVideoQuality', async () => {
+      const config = workspace.getConfiguration('emc')
+      const currentValue = config.get('videoQuality', 23)
+      const input = await window.showInputBox({
+        prompt: 'Enter video quality (CRF/VBR: 0=best, 51=worst)',
+        value: currentValue.toString(),
+        validateInput: (value) => {
+          const num = parseInt(value)
+          if (isNaN(num) || num < 0 || num > 51) return 'Please enter a number between 0 and 51'
+          return null
+        }
+      })
+      if (input) {
+        await config.update('videoQuality', parseInt(input), true)
+        treeViewProvider.refresh()
+        showInformationMessage(`Video quality set to ${input}`)
+      }
+    }),
+    rc('emc.changeAudioQuality', async () => {
+      const config = workspace.getConfiguration('emc')
+      const currentValue = config.get('audioQuality', 4)
+      const input = await window.showInputBox({
+        prompt: 'Enter audio quality (VBR: 0=best, 9=worst)',
+        value: currentValue.toString(),
+        validateInput: (value) => {
+          const num = parseInt(value)
+          if (isNaN(num) || num < 0 || num > 9) return 'Please enter a number between 0 and 9'
+          return null
+        }
+      })
+      if (input) {
+        await config.update('audioQuality', parseInt(input), true)
+        treeViewProvider.refresh()
+        showInformationMessage(`Audio quality set to ${input}`)
+      }
+    }),
+    rc('emc.toggleGpu', async () => {
+      const config = workspace.getConfiguration('emc')
+      const currentValue = config.get('enableGpuAcceleration', false)
+      await config.update('enableGpuAcceleration', !currentValue, true)
+      treeViewProvider.refresh()
+      showInformationMessage(`GPU acceleration ${!currentValue ? 'enabled' : 'disabled'}`)
+    }),
+    rc('emc.toggleBinCheck', async () => {
+      const config = workspace.getConfiguration('emc')
+      const currentValue = config.get('checkBinary', true)
+      await config.update('checkBinary', !currentValue, true)
+      treeViewProvider.refresh()
+      showInformationMessage(`Binary check ${!currentValue ? 'enabled' : 'disabled'}`)
+    })
   ])
 
   // TODO: this is for the batch convert file chooser

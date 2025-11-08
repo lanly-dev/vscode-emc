@@ -1,4 +1,4 @@
-import { commands, QuickPickItem, window } from 'vscode'
+import { commands, QuickPickItem, window, workspace, ThemeIcon } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
 import pb from 'pretty-bytes'
@@ -32,16 +32,81 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   }
 
   getChildren(element?: TreeItem): Thenable<TreeItem[]> {
-    if (element) return Promise.resolve([])
+    if (element) {
+      // If it's the Settings item, return its children
+      if (element.contextValue === 'emcSettingsItem') return Promise.resolve(this.getSettingsChildren())
+      return Promise.resolve([])
+    }
 
-    // If no element is provided == root element
-    return Promise.resolve(
-      this.queue.map((file) => {
-        const item = new TreeItem(file, TreeItemCollapsibleState.None)
-        item.contextValue = 'emcTreeviewItem'
-        return item
-      })
-    )
+    // Root level: Settings + Queue items
+    const items: TreeItem[] = []
+
+    // Add Settings item at the top
+    const settingsItem = new TreeItem('Settings', TreeItemCollapsibleState.Collapsed)
+    settingsItem.contextValue = 'emcSettingsItem'
+    settingsItem.iconPath = new ThemeIcon('settings-gear')
+    items.push(settingsItem)
+
+    // Add queue items
+    const queueItems = this.queue.map((file) => {
+      const item = new TreeItem(file, TreeItemCollapsibleState.None)
+      item.contextValue = 'emcTreeviewItem'
+      return item
+    })
+    items.push(...queueItems)
+
+    return Promise.resolve(items)
+  }
+
+  private getSettingsChildren(): TreeItem[] {
+    const config = workspace.getConfiguration('emc')
+    const items: TreeItem[] = []
+
+    // Bin check setting
+    const binCheckEnabled = config.get('checkBinary', true)
+    const binCheckItem = new TreeItem(`Bin Check: ${binCheckEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    binCheckItem.contextValue = 'emcSettingBinCheck'
+    binCheckItem.iconPath = new ThemeIcon(binCheckEnabled ? 'check' : 'close')
+    binCheckItem.command = {
+      command: 'emc.toggleBinCheck',
+      title: 'Toggle Bin Check'
+    }
+    items.push(binCheckItem)
+
+    // Video quality setting
+    const videoQuality = config.get('videoQuality', 23)
+    const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
+    videoQualityItem.contextValue = 'emcSettingVideoQuality'
+    videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
+    videoQualityItem.command = {
+      command: 'emc.changeVideoQuality',
+      title: 'Change Video Quality'
+    }
+    items.push(videoQualityItem)
+
+    // Audio quality setting
+    const audioQuality = config.get('audioQuality', 4)
+    const audioQualityItem = new TreeItem(`Audio Quality: ${audioQuality}`, TreeItemCollapsibleState.None)
+    audioQualityItem.contextValue = 'emcSettingAudioQuality'
+    audioQualityItem.iconPath = new ThemeIcon('unmute')
+    audioQualityItem.command = {
+      command: 'emc.changeAudioQuality',
+      title: 'Change Audio Quality'
+    }
+    items.push(audioQualityItem)
+
+    // GPU setting
+    const gpuEnabled = config.get('enableGpuAcceleration', false)
+    const gpuItem = new TreeItem(`GPU: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    gpuItem.contextValue = 'emcSettingGpu'
+    gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
+    gpuItem.command = {
+      command: 'emc.toggleGpu',
+      title: 'Toggle GPU'
+    }
+    items.push(gpuItem)
+
+    return items
   }
 
   addToQueue(files: Uri[]): void {

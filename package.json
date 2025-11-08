@@ -41,6 +41,25 @@
           "type": "boolean",
           "default": false,
           "description": "Enable GPU acceleration (h264_nvenc - Nvidia) video encoding"
+        },
+        "emc.videoQuality": {
+          "type": "number",
+          "default": 23,
+          "minimum": 0,
+          "maximum": 51,
+          "description": "Video encoding quality using VBR (CRF: 0=best, 51=worst). Lower values produce better quality but larger files."
+        },
+        "emc.audioQuality": {
+          "type": "number",
+          "default": 4,
+          "minimum": 0,
+          "maximum": 9,
+          "description": "Audio encoding quality (VBR: 0=best, 9=worst). For MP3: 0-9, lower is better quality."
+        },
+        "emc.checkBinary": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check ffmpeg binary on startup"
         }
       }
     },
@@ -96,6 +115,26 @@
         "command": "emc.startConversion",
         "title": "EMC: start conversion",
         "icon": "$(run-all)"
+      },
+      {
+        "command": "emc.changeVideoQuality",
+        "title": "EMC: Change video quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.changeAudioQuality",
+        "title": "EMC: Change audio quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.toggleGpu",
+        "title": "EMC: Toggle GPU acceleration",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "emc.toggleBinCheck",
+        "title": "EMC: Toggle binary check",
+        "icon": "$(settings-gear)"
       }
     ],
     "views": {
@@ -210,6 +249,21 @@
         {
           "command": "emc.removeFromQueue",
           "when": "viewItem == emcTreeviewItem",
+          "group": "inline"
+        },
+        {
+          "command": "emc.changeVideoQuality",
+          "when": "viewItem == emcSettingVideoQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.changeAudioQuality",
+          "when": "viewItem == emcSettingAudioQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.toggleGpu",
+          "when": "viewItem == emcSettingGpu",
           "group": "inline"
         }
       ]
