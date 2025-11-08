@@ -112,8 +112,8 @@
         "icon": "$(info)"
       },
       {
-        "command": "emc.startConversion",
-        "title": "EMC: start conversion",
+        "command": "emc.startConversionQueue",
+        "title": "EMC: start conversionQueue",
         "icon": "$(run-all)"
       },
       {
@@ -129,11 +129,6 @@
       {
         "command": "emc.toggleGpu",
         "title": "EMC: Toggle GPU acceleration",
-        "icon": "$(settings-gear)"
-      },
-      {
-        "command": "emc.toggleBinCheck",
-        "title": "EMC: Toggle binary check",
         "icon": "$(settings-gear)"
       }
     ],
@@ -188,7 +183,7 @@
           "when": "false"
         },
         {
-          "command": "emc.startConversion",
+          "command": "emc.startConversionQueue",
           "when": "false"
         }
       ],
@@ -240,7 +235,7 @@
         },
         {
           "view": "emcTreeView",
-          "command": "emc.startConversion",
+          "command": "emc.startConversionQueue",
           "group": "navigation",
           "when": "view == emcTreeView && emcQueueConvertible && !emcQueueRunning"
         }
