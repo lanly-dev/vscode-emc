@@ -20,7 +20,7 @@ let pathToFfmpeg: string
 export function activate(context: ExtensionContext) {
   pathToFfmpeg = getFfmpegBinPath(context.extensionPath)
   init()
-  treeViewProvider = new TreeViewProvider()
+  treeViewProvider = new TreeViewProvider(pathToFfmpeg)
   setupTreeview(treeViewProvider)
   const rc = commands.registerCommand
 
@@ -33,6 +33,7 @@ export function activate(context: ExtensionContext) {
 
     rc('emc.download', download),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
+    rc('emc.refreshBinCheck', () => treeViewProvider.refresh()),
 
     rc('emc.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
     rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
@@ -84,7 +85,6 @@ async function toggleGpu() {
   const currentValue = config.get('enableGpuAcceleration', false)
   await config.update('enableGpuAcceleration', !currentValue, true)
   treeViewProvider.refresh()
-  showInformationMessage(`GPU acceleration ${!currentValue ? 'enabled' : 'disabled'}`)
 }
 
 async function changeAudioQuality() {
@@ -102,7 +102,6 @@ async function changeAudioQuality() {
   if (input) {
     await config.update('audioQuality', parseInt(input), true)
     treeViewProvider.refresh()
-    showInformationMessage(`Audio quality set to ${input}`)
   }
 }
 
@@ -129,7 +128,6 @@ async function toggleCustomQuality() {
   const currentValue = config.get('useCustomQuality', false)
   await config.update('useCustomQuality', !currentValue, true)
   treeViewProvider.refresh()
-  showInformationMessage(`Custom quality ${!currentValue ? 'enabled' : 'disabled'}`)
 }
 
 async function startConversionQueue() {

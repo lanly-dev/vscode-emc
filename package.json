@@ -60,11 +60,6 @@
           "minimum": 0,
           "maximum": 9,
           "description": "Audio encoding quality (VBR: 0=best, 9=worst). For MP3: 0-9, lower is better quality."
-        },
-        "emc.checkBinary": {
-          "type": "boolean",
-          "default": true,
-          "description": "Check ffmpeg binary on startup"
         }
       }
     },
@@ -151,6 +146,11 @@
         "command": "emc.openSettings",
         "title": "EMC: Open settings",
         "icon": "$(gear)"
+      },
+      {
+        "command": "emc.refreshBinCheck",
+        "title": "EMC: Refresh binary check",
+        "icon": "$(refresh)"
       }
     ],
     "views": {
@@ -301,6 +301,11 @@
         {
           "command": "emc.toggleGpu",
           "when": "viewItem == emcSettingGpu",
+          "group": "inline"
+        },
+        {
+          "command": "emc.refreshBinCheck",
+          "when": "viewItem == emcSettingBinCheck",
           "group": "inline"
         },
         {

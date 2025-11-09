@@ -10,21 +10,12 @@ import {
 } from './utils'
 import { MediaFileType, ConversionResult } from './interfaces'
 const { showInformationMessage } = window
-const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class ConverterQueue {
   private static readonly MAX_CONCURRENT = 3
 
   static async convert(pathToFfmpeg: string, files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg)) {
-      const abortMsg = 'Converting action aborted'
-      showInformationMessage(MSG)
-      showInformationMessage(abortMsg)
-      printToChannel(MSG)
-      printToChannel(abortMsg)
-      return
-    }
 
     const wsPath = getWorkspacePath()
     if (!wsPath) {

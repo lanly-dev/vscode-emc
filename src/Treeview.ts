@@ -1,6 +1,7 @@
 import { commands, QuickPickItem, window, workspace, ThemeIcon } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
+import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
 const { showInformationMessage } = window
@@ -11,10 +12,14 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   readonly onDidChangeTreeData: Event<void> = this._onDidChangeTreeData.event
 
   public queue: Uri[] = []
+  public isBinExisting: boolean = false
 
-  constructor() { }
+  constructor(public ffmpegPath: string) {
+    this.isBinExisting = fs.existsSync(this.ffmpegPath)
+  }
 
   refresh(): void {
+    this.isBinExisting = fs.existsSync(this.ffmpegPath)
     this._onDidChangeTreeData.fire()
   }
 
@@ -65,23 +70,22 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const items: TreeItem[] = []
 
     // Bin check setting
-    const binCheckEnabled = config.get('checkBinary', true)
     const binCheckItem =
-      new TreeItem(`Bin Check: ${binCheckEnabled ? 'Found' : 'Not Found'}`, TreeItemCollapsibleState.None)
+      new TreeItem(`Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`, TreeItemCollapsibleState.None)
     binCheckItem.contextValue = 'emcSettingBinCheck'
-    binCheckItem.iconPath = new ThemeIcon(binCheckEnabled ? 'check' : 'close')
+    binCheckItem.iconPath = new ThemeIcon('chip')
     items.push(binCheckItem)
 
     // GPU setting
     const gpuEnabled = config.get('enableGpuAcceleration', false)
-    const gpuItem = new TreeItem(`GPU enabled: ${gpuEnabled ? 'On' : 'Off'}`, TreeItemCollapsibleState.None)
+    const gpuItem = new TreeItem(`GPU enabled: ${gpuEnabled ? '✔️' : '❌'}`, TreeItemCollapsibleState.None)
     gpuItem.contextValue = 'emcSettingGpu'
     gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
     items.push(gpuItem)
 
     // Custom Quality setting (parent with collapsible children)
     const useCustomQuality = config.get('useCustomQuality', false)
-    const customQualityLabel = `Custom Quality: ${useCustomQuality ? 'On' : 'Off'}`
+    const customQualityLabel = `Custom Quality: ${useCustomQuality ? '✔️' : '❌'}`
     const state = useCustomQuality ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
     const customQualityItem = new TreeItem(customQualityLabel, state)
     customQualityItem.contextValue = 'emcSettingCustomQuality'

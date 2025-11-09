@@ -8,22 +8,12 @@ import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg } from '
 import { MediaFileType } from './interfaces'
 
 const { showInformationMessage } = window
-const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
-
 // Due to output format *** is not available
 // https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/1282
 export default class ConverterImg {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg)) {
-      const abortMsg = 'Converting action aborted'
-      showInformationMessage(MSG)
-      showInformationMessage(abortMsg)
-      printToChannel(MSG)
-      printToChannel(abortMsg)
-      return
-    }
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)
