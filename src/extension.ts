@@ -3,8 +3,8 @@ import { ExtensionContext, Uri } from 'vscode'
 import * as fs from 'fs'
 
 import { download } from './ffmpegFn'
-import { MediaFileType } from './interfaces'
 import { getFfmpegBinPath, printToChannel } from './utils'
+import { MediaFileType } from './interfaces'
 import Converter from './Converter'
 import ConverterGif from './ConverterGif'
 import ConverterImg from './ConverterImg'
@@ -31,7 +31,7 @@ export function activate(context: ExtensionContext) {
     rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(pathToFfmpeg, uri, GIF)),
     rc('emc.convertWav', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, WAV)),
 
-    rc('emc.download', download),
+    rc('emc.download', () => download(pathToFfmpeg)),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
     rc('emc.refreshBinCheck', () => treeViewProvider.refresh()),
 

@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import pb from 'pretty-bytes'
 import {
-  channel, createDir, durationToSec, fmtMSS, fmtTimeLeft, getFormattedDate,
+  channel, createDir, fmtMSS, fmtTimeLeft, getFormattedDate,
   getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult } from './interfaces'

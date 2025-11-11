@@ -66,7 +66,8 @@
     "commands": [
       {
         "command": "emc.download",
-        "title": "EMC: Download ffmpeg"
+        "title": "EMC: Download ffmpeg",
+        "icon": "$(cloud-download)"
       },
       {
         "command": "emc.convertMp3",
@@ -304,14 +305,19 @@
           "group": "inline"
         },
         {
-          "command": "emc.refreshBinCheck",
-          "when": "viewItem == emcSettingBinCheck",
-          "group": "inline"
+          "command": "emc.download",
+          "when": "viewItem == emcSettingBinCheck && emcBinMissing",
+          "group": "inline@1"
         },
         {
           "command": "emc.revealFfmpegBin",
+          "when": "viewItem == emcSettingBinCheck && !emcBinMissing",
+          "group": "inline@3"
+        },
+        {
+          "command": "emc.refreshBinCheck",
           "when": "viewItem == emcSettingBinCheck",
-          "group": "inline"
+          "group": "inline@2"
         }
       ]
     }

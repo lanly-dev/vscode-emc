@@ -16,10 +16,12 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
   constructor(public ffmpegPath: string) {
     this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.updateBinStatus()
   }
 
   refresh(): void {
     this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.updateBinStatus()
     this._onDidChangeTreeData.fire()
   }
 
@@ -30,6 +32,10 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   private updateBatchConvertibleStatus(): void {
     const isConvertible = this.isQueueConvertible()
     commands.executeCommand('setContext', 'emcQueueConvertible', isConvertible)
+  }
+
+  private updateBinStatus(): void {
+    commands.executeCommand('setContext', 'emcBinMissing', !this.isBinExisting)
   }
 
   getTreeItem(element: TreeItem): TreeItem {
@@ -70,10 +76,13 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const items: TreeItem[] = []
 
     // Bin check setting
-    const binCheckItem =
-      new TreeItem(`Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`, TreeItemCollapsibleState.None)
+    const binCheckItem = new TreeItem(
+      `Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`,
+      TreeItemCollapsibleState.None
+    )
     binCheckItem.contextValue = 'emcSettingBinCheck'
-    binCheckItem.iconPath = new ThemeIcon('chip')
+    binCheckItem.iconPath = new ThemeIcon(this.isBinExisting ? 'check' : 'warning')
+    // Add download command when binary is missing
     items.push(binCheckItem)
 
     // GPU setting
