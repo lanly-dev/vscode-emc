@@ -7,4 +7,5 @@ package-lock.json
 bin
 dist
 node_modules
-test
+test/*
+!test/scripts/
