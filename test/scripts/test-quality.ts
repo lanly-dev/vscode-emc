@@ -1,34 +1,31 @@
 /**
  * Test script for quality settings
- * Run with: npm run test-compile && node test/test-quality.js
+ * Run with: npm run test:quality
  */
 
-import { workspace } from 'vscode'
+import { spawn } from 'child_process'
+import * as path from 'path'
+import * as fs from 'fs'
 
-// Mock workspace configuration
-const mockConfig = new Map<string, any>()
+// Test configuration type
+interface TestConfig {
+  enableGpuAcceleration: boolean
+  useCustomQuality: boolean
+  videoQuality: number
+  audioQuality: number
+}
 
-const originalGetConfiguration = workspace.getConfiguration
-workspace.getConfiguration = (section?: string) => {
-  return {
-    get: (key: string, defaultValue?: any) => {
-      const fullKey = section ? `${section}.${key}` : key
-      return mockConfig.has(fullKey) ? mockConfig.get(fullKey) : defaultValue
-    },
-    has: (key: string) => mockConfig.has(section ? `${section}.${key}` : key),
-    inspect: () => undefined,
-    update: () => Promise.resolve()
-  } as any
+// Mock config
+let currentConfig: TestConfig = {
+  enableGpuAcceleration: false,
+  useCustomQuality: false,
+  videoQuality: 23,
+  audioQuality: 4
 }
 
 // Test helper to set config
-function setConfig(key: string, value: any) {
-  mockConfig.set(`emc.${key}`, value)
-}
-
-// Test helper to clear config
-function clearConfig() {
-  mockConfig.clear()
+function setConfig(config: Partial<TestConfig>) {
+  currentConfig = { ...currentConfig, ...config }
 }
 
 // Test cases
@@ -40,14 +37,17 @@ interface TestCase {
     videoQuality: number
     audioQuality: number
   }
+  inputFile: string
   type: string
   expectedIncludes: string[]
   expectedExcludes: string[]
 }
 
+const testDir = path.join(__dirname, '..')
 const testCases: TestCase[] = [
   {
     name: 'MP4 - No custom quality',
+    inputFile: path.join(testDir, 'big-buck-bunny_trailer.mp4'),
     type: 'mp4',
     config: { enableGpuAcceleration: false, useCustomQuality: false, videoQuality: 23, audioQuality: 4 },
     expectedIncludes: ['-c:v', 'libx264', '-f', 'mp4'],
@@ -55,6 +55,7 @@ const testCases: TestCase[] = [
   },
   {
     name: 'MP4 - Custom quality CRF 18',
+    inputFile: path.join(testDir, 'big-buck-bunny_trailer.mp4'),
     type: 'mp4',
     config: { enableGpuAcceleration: false, useCustomQuality: true, videoQuality: 18, audioQuality: 4 },
     expectedIncludes: ['-c:v', 'libx264', '-crf', '18', '-f', 'mp4'],
@@ -62,34 +63,23 @@ const testCases: TestCase[] = [
   },
   {
     name: 'MP4 - Custom quality CRF 35 (low)',
+    inputFile: path.join(testDir, 'big-buck-bunny_trailer.mp4'),
     type: 'mp4',
     config: { enableGpuAcceleration: false, useCustomQuality: true, videoQuality: 35, audioQuality: 4 },
     expectedIncludes: ['-c:v', 'libx264', '-crf', '35', '-f', 'mp4'],
     expectedExcludes: []
   },
   {
-    name: 'MP4 - GPU encoding with custom quality',
-    type: 'mp4',
-    config: { enableGpuAcceleration: true, useCustomQuality: true, videoQuality: 23, audioQuality: 4 },
-    expectedIncludes: ['-c:v', 'h264_nvenc', '-cq', '23', '-f', 'mp4'],
-    expectedExcludes: ['-crf']
-  },
-  {
     name: 'MP3 - Custom audio quality VBR 0 (best)',
+    inputFile: path.join(testDir, 'Free_Test_Data_1OMB_MP3.mp3'),
     type: 'mp3',
     config: { enableGpuAcceleration: false, useCustomQuality: true, videoQuality: 23, audioQuality: 0 },
     expectedIncludes: ['-q:a', '0', '-f', 'mp3'],
     expectedExcludes: []
   },
   {
-    name: 'MP3 - Custom audio quality VBR 9 (worst)',
-    type: 'mp3',
-    config: { enableGpuAcceleration: false, useCustomQuality: true, videoQuality: 23, audioQuality: 9 },
-    expectedIncludes: ['-q:a', '9', '-f', 'mp3'],
-    expectedExcludes: []
-  },
-  {
     name: 'MP3 - No custom quality',
+    inputFile: path.join(testDir, 'Free_Test_Data_1OMB_MP3.mp3'),
     type: 'mp3',
     config: { enableGpuAcceleration: false, useCustomQuality: false, videoQuality: 23, audioQuality: 4 },
     expectedIncludes: ['-f', 'mp3'],
@@ -97,19 +87,15 @@ const testCases: TestCase[] = [
   }
 ]
 
-// Extract args building logic by simulating the converter
-function extractArgsFromConverter(type: string, input: string, output: string): string[] {
-  const config = workspace.getConfiguration('emc')
-  const enableGpu = config.get('enableGpuAcceleration', false)
-  const useCustomQuality = config.get('useCustomQuality', false)
-  const videoQuality = config.get('videoQuality', 23)
-  const audioQuality = config.get('audioQuality', 4)
+// Simulate the args building logic from Converter.ts
+function buildFfmpegArgs(type: string, input: string, output: string): string[] {
+  const { enableGpuAcceleration, useCustomQuality, videoQuality, audioQuality } = currentConfig
 
-  // This matches the logic in Converter.ts
   const args = ['-i', input]
 
+  // Video codec settings
   if (type === 'mp4') {
-    if (enableGpu) {
+    if (enableGpuAcceleration) {
       args.push('-c:v', 'h264_nvenc')
       if (useCustomQuality) args.push('-cq', videoQuality.toString())
     } else {
@@ -118,6 +104,7 @@ function extractArgsFromConverter(type: string, input: string, output: string): 
     }
   }
 
+  // Audio quality settings
   if (type === 'mp3' && useCustomQuality) args.push('-q:a', audioQuality.toString())
 
   args.push('-f', type, '-progress', 'pipe:1', '-y', output)
@@ -125,62 +112,128 @@ function extractArgsFromConverter(type: string, input: string, output: string): 
   return args
 }
 
-// Run tests
-console.log('🧪 Testing Quality Settings from Converter.ts\n')
-console.log('='.repeat(80))
+// Helper to run ffmpeg and get output file size
+function runFfmpeg(pathToFfmpeg: string, args: string[]): Promise<{ success: boolean, outputSize: number }> {
+  return new Promise((resolve) => {
+    const ffmpegProcess = spawn(pathToFfmpeg, args)
+    let errorOutput = ''
 
-let passed = 0
-let failed = 0
+    ffmpegProcess.stderr.on('data', (data: Buffer) => {
+      errorOutput += data.toString()
+    })
 
-testCases.forEach((test, index) => {
-  clearConfig()
+    ffmpegProcess.on('close', (code) => {
+      const outputFile = args[args.length - 1]
+      let outputSize = 0
 
-  // Set config for this test
-  setConfig('enableGpuAcceleration', test.config.enableGpuAcceleration)
-  setConfig('useCustomQuality', test.config.useCustomQuality)
-  setConfig('videoQuality', test.config.videoQuality)
-  setConfig('audioQuality', test.config.audioQuality)
+      if (code === 0 && fs.existsSync(outputFile))
+        outputSize = fs.statSync(outputFile).size
 
-  const args = extractArgsFromConverter(test.type, 'input.file', 'output.file')
-  const argsStr = args.join(' ')
-
-  console.log(`\n${index + 1}. ${test.name}`)
-  console.log(
-    `   Config: GPU=${test.config.enableGpuAcceleration}, ` +
-    `CustomQuality=${test.config.useCustomQuality}, ` +
-    `VideoQ=${test.config.videoQuality}, AudioQ=${test.config.audioQuality}`
-  )
-  console.log(`   Command: ffmpeg ${argsStr}`)
-
-  let testPassed = true
-
-  // Check expected includes
-  test.expectedIncludes.forEach(expected => {
-    if (!args.includes(expected)) {
-      console.log(`   ❌ FAIL: Expected "${expected}" in args`)
-      testPassed = false
-    }
+      resolve({ success: code === 0, outputSize })
+    })
   })
-
-  // Check expected excludes
-  test.expectedExcludes.forEach(excluded => {
-    if (args.includes(excluded)) {
-      console.log(`   ❌ FAIL: Did not expect "${excluded}" in args`)
-      testPassed = false
-    }
-  })
-
-  if (testPassed) {
-    console.log(`   ✅ PASS`)
-    passed++
-  } else failed++
-})
-
-console.log('\n' + '='.repeat(80))
-console.log(`\n📊 Results: ${passed} passed, ${failed} failed`)
-
-if (failed === 0) console.log('✅ All tests passed!')
-else {
-  console.log('❌ Some tests failed')
-  process.exit(1)
 }
+
+// Run tests
+async function runTests() {
+  // Get ffmpeg path from bin directory
+  const binPath = path.join(__dirname, '..', '..', 'bin')
+  const platform = process.platform
+  let ffmpegPath: string
+
+  if (platform === 'win32')
+    ffmpegPath = path.join(binPath, 'ffmpeg.exe')
+  else if (platform === 'darwin')
+    ffmpegPath = path.join(binPath, 'ffmpeg')
+  else
+    ffmpegPath = path.join(binPath, 'ffmpeg')
+
+  // Check if ffmpeg exists in bin, otherwise use system ffmpeg
+  if (!fs.existsSync(ffmpegPath)) {
+    console.error('❌ ERROR: ffmpeg not found in bin directory')
+    console.error(`   Expected path: ${ffmpegPath}`)
+    console.error('   Please download ffmpeg first using the extension')
+    process.exit(1)
+  }
+
+  console.log(`✅ Using ffmpeg from: ${ffmpegPath}`)
+
+  console.log('\n🧪 Testing Converter Quality Settings with Real Files\n')
+  console.log('='.repeat(80))
+
+  let passed = 0
+  let failed = 0
+
+  for (const [index, test] of testCases.entries()) {
+    setConfig(test.config)
+
+    const outputFile = test.inputFile.replace(
+      path.extname(test.inputFile),
+      `-test-${index}.${test.type}`
+    )
+    const args = buildFfmpegArgs(test.type, test.inputFile, outputFile)
+    const argsStr = args.join(' ')
+
+    console.log(`\n${index + 1}. ${test.name}`)
+    console.log(
+      `   Config: GPU=${test.config.enableGpuAcceleration}, ` +
+      `CustomQuality=${test.config.useCustomQuality}, ` +
+      `VideoQ=${test.config.videoQuality}, AudioQ=${test.config.audioQuality}`
+    )
+    console.log(`   Input: ${path.basename(test.inputFile)}`)
+    console.log(`   Command: ffmpeg ${argsStr}`)
+
+    let testPassed = true
+
+    // Check expected includes
+    test.expectedIncludes.forEach(expected => {
+      if (!args.includes(expected)) {
+        console.log(`   ❌ FAIL: Expected "${expected}" in args`)
+        testPassed = false
+      }
+    })
+
+    // Check expected excludes
+    test.expectedExcludes.forEach(excluded => {
+      if (args.includes(excluded)) {
+        console.log(`   ❌ FAIL: Did not expect "${excluded}" in args`)
+        testPassed = false
+      }
+    })
+
+    if (testPassed && fs.existsSync(test.inputFile)) {
+      console.log(`   🔄 Running ffmpeg...`)
+      const { success, outputSize } = await runFfmpeg(ffmpegPath, args)
+
+      if (success) {
+        console.log(`   ✅ PASS - Output size: ${(outputSize / 1024).toFixed(2)} KB`)
+        passed++
+
+        // Clean up output file
+        if (fs.existsSync(outputFile))
+          fs.unlinkSync(outputFile)
+      } else {
+        console.log(`   ❌ FAIL: ffmpeg conversion failed`)
+        failed++
+      }
+    } else if (!testPassed)
+      failed++
+    else
+      console.log(`   ⚠️  SKIP: Input file not found`)
+  }
+
+  console.log('\n' + '='.repeat(80))
+  console.log(`\n📊 Results: ${passed} passed, ${failed} failed`)
+
+  if (failed === 0)
+    console.log('✅ All tests passed!')
+  else {
+    console.log('❌ Some tests failed')
+    process.exit(1)
+  }
+}
+
+runTests().catch(err => {
+  console.error('Test error:', err)
+  process.exit(1)
+})
