@@ -57,12 +57,39 @@ export default class Converter {
         let totalTime = 0
         let startTime = Date.now()
 
-        const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
+        const config = workspace.getConfiguration('emc')
+        const enableGpu = config.get('enableGpuAcceleration', false)
+        const useCustomQuality = config.get('useCustomQuality', false)
+        const videoQuality = config.get('videoQuality', 23)
+        const audioQuality = config.get('audioQuality', 4)
+
+        // Log settings
+        printToChannel(
+          `Settings: GPU=${enableGpu}, CustomQuality=${useCustomQuality}, ` +
+          `VideoQuality=${videoQuality}, AudioQuality=${audioQuality}`
+        )
 
         // Build ffmpeg arguments
-        const args = ['-i', input, '-f', type]
-        if (enableGpu && type === 'mp4') args.push('-c:v', 'h264_nvenc')
-        args.push('-progress', 'pipe:1', '-y', output)
+        const args = ['-i', input]
+
+        // Apply video encoding settings for video formats
+        if (type === 'mp4') {
+          if (enableGpu) {
+            args.push('-c:v', 'h264_nvenc')
+            if (useCustomQuality) args.push('-cq', videoQuality.toString())
+          } else {
+            args.push('-c:v', 'libx264')
+            if (useCustomQuality) args.push('-crf', videoQuality.toString())
+          }
+        }
+
+        // Apply audio quality settings for audio formats
+        if (type === 'mp3' && useCustomQuality) args.push('-q:a', audioQuality.toString())
+
+        args.push('-f', type, '-progress', 'pipe:1', '-y', output)
+
+        // Log the full ffmpeg command for debugging
+        printToChannel(`Executing: ${pathToFfmpeg} ${args.join(' ')}`)
 
         const ffmpegProcess = spawn(pathToFfmpeg, args)
         let stderrOutput = ''

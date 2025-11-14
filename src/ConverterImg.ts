@@ -1,5 +1,5 @@
 import { performance as perf } from 'perf_hooks'
-import { ProgressLocation, Uri, window } from 'vscode'
+import { ProgressLocation, Uri, window, workspace } from 'vscode'
 import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
@@ -50,7 +50,27 @@ export default class ConverterImg {
       // There is no progress
     }, () => {
       return new Promise<void>((resolve, reject) => {
-        const args = ['-i', input, '-f', 'image2', '-y', output]
+        const config = workspace.getConfiguration('emc')
+        const useCustomQuality = config.get('useCustomQuality', false)
+        const videoQuality = config.get('videoQuality', 23)
+
+        // JPEG quality: convert CRF (0-51) to JPEG quality (2-31), inverted scale
+        // CRF 0 (best) -> q:v 2 (best), CRF 51 (worst) -> q:v 31 (worst)
+        const jpegQuality = Math.round((videoQuality / 51) * 29 + 2)
+
+        // Log settings
+        printToChannel(
+          `Settings: CustomQuality=${useCustomQuality}, ` +
+          `JPEGQuality=${jpegQuality} (from CRF ${videoQuality})`
+        )
+
+        const args = ['-i', input]
+        if (useCustomQuality) args.push('-q:v', jpegQuality.toString())
+        args.push('-f', 'image2', '-y', output)
+
+        // Log the full ffmpeg command for debugging
+        printToChannel(`Executing: ${pathToFfmpeg} ${args.join(' ')}`)
+
         const ffmpegProcess = spawn(pathToFfmpeg, args)
         let stderrOutput = ''
 
