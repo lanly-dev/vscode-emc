@@ -4,6 +4,8 @@
 package-lock.json
 
 # Directories
+bin
 dist
 node_modules
-test
+test/*
+!test/scripts/

@@ -1,33 +1,18 @@
 import { performance as perf } from 'perf_hooks'
 import { ProgressLocation, Uri, workspace, window } from 'vscode'
-
-import * as ffmpeg from 'fluent-ffmpeg'
+import { spawn } from 'child_process'
 import * as fs from 'fs'
-import pathToFfmpeg from 'ffmpeg-static'
 import pb from 'pretty-bytes'
 
-import {
-  channel, durationToSec, fmtMSS, fmtTimeLeft,
-  getOutFile, printToChannel, round, showPrintErrorMsg
-} from './utils'
+import { channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
-ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showInformationMessage } = window
-const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class Converter {
 
-  static async convert({ fsPath, path }: Uri, type: MediaFileType) {
+  static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg!)) {
-      const abortMsg = 'Converting action aborted'
-      showInformationMessage(MSG)
-      showInformationMessage(abortMsg)
-      printToChannel(MSG)
-      printToChannel(abortMsg)
-      return
-    }
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)
@@ -37,7 +22,7 @@ export default class Converter {
       const { outFile: oPath, fileName: oFName } = getOutFile(dir, name!, type)
 
       const t0 = perf.now()
-      await this.ffmpegConvert(type, fsPath, oPath)
+      await this.ffmpegConvert(pathToFfmpeg, type, fsPath, oPath)
       const t1 = perf.now()
       const ms = Math.round(t1 - t0)
 
@@ -56,7 +41,7 @@ export default class Converter {
     }
   }
 
-  private static ffmpegConvert(type: string, input: string, output: string) {
+  private static ffmpegConvert(pathToFfmpeg: string, type: string, input: string, output: string) {
     return window.withProgress({
       location: ProgressLocation.Window,
       title: 'Converting',
@@ -72,59 +57,120 @@ export default class Converter {
         let totalTime = 0
         let startTime = Date.now()
 
-        const enableGpu = workspace.getConfiguration('emc').get('enableGpuAcceleration', false)
-        let command = ffmpeg(input).format(type)
-        if (enableGpu && type === 'mp4') command = command.videoCodec('h264_nvenc') // NVIDIA GPU acceleration
-        command = command.save(output)
-          .on('codecData', ({ duration }) => totalTime = durationToSec(duration))
-          .on('progress', (prog) => {
-            const { frames, currentFps: fps, currentKbps: kbps, targetSize: s, timemark } = prog
-            const time = durationToSec(timemark)
-            const percent = (time / totalTime) * 100
-            if (!isNaN(fps) && fps > 0) {
-              totalFps += fps
-              avgFps = avgFps === 0 ? avgFps + fps : (avgFps + fps) / 2
-              count1++
+        const config = workspace.getConfiguration('emc')
+        const enableGpu = config.get('enableGpuAcceleration', false)
+        const useCustomQuality = config.get('useCustomQuality', false)
+        const videoQuality = config.get('videoQuality', 23)
+        const audioQuality = config.get('audioQuality', 4)
+
+        // Log settings
+        printToChannel(
+          `Settings: GPU=${enableGpu}, CustomQuality=${useCustomQuality}, ` +
+          `VideoQuality=${videoQuality}, AudioQuality=${audioQuality}`
+        )
+
+        // Build ffmpeg arguments
+        const args = ['-i', input]
+
+        // Apply video encoding settings for video formats
+        if (type === 'mp4') {
+          if (enableGpu) {
+            args.push('-c:v', 'h264_nvenc')
+            if (useCustomQuality) args.push('-cq', videoQuality.toString())
+          } else {
+            args.push('-c:v', 'libx264')
+            if (useCustomQuality) args.push('-crf', videoQuality.toString())
+          }
+        }
+
+        // Apply audio quality settings for audio formats
+        if (type === 'mp3' && useCustomQuality) args.push('-q:a', audioQuality.toString())
+
+        args.push('-f', type, '-progress', 'pipe:1', '-y', output)
+
+        // Log the full ffmpeg command for debugging
+        printToChannel(`Executing: ${pathToFfmpeg} ${args.join(' ')}`)
+
+        const ffmpegProcess = spawn(pathToFfmpeg, args)
+        let stderrOutput = ''
+
+        ffmpegProcess.stdout.on('data', (data: Buffer) => {
+          const output = data.toString()
+          const lines = output.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('out_time_ms=')) {
+              const timeMs = parseInt(line.split('=')[1])
+              if (!isNaN(timeMs) && totalTime > 0) {
+                const timeSec = timeMs / 1000000
+                const percent = (timeSec / totalTime) * 100
+
+                const elapsedTime = (Date.now() - startTime) / 1000
+                const estimatedTotalTime = (elapsedTime * 100) / percent
+                const estimatedTimeLeft = Math.max(0, estimatedTotalTime - elapsedTime)
+                const timeLeftMessage = fmtTimeLeft(estimatedTimeLeft)
+
+                progress.report({
+                  message: `${round(percent)}% - ${timeLeftMessage}`
+                })
+              }
+            } else if (line.startsWith('fps=')) {
+              const fps = parseFloat(line.split('=')[1])
+              if (!isNaN(fps) && fps > 0) {
+                totalFps += fps
+                avgFps = avgFps === 0 ? avgFps + fps : (avgFps + fps) / 2
+                count1++
+              }
+            } else if (line.startsWith('bitrate=')) {
+              const bitrateStr = line.split('=')[1]
+              const kbps = parseFloat(bitrateStr)
+              if (!isNaN(kbps) && kbps > 0) {
+                avgKbps = avgKbps === 0 ? avgKbps + kbps : (avgKbps + kbps) / 2
+                totalKbps += kbps
+                count2++
+              }
             }
+          }
+        })
 
-            if (!isNaN(kbps) && kbps > 0) {
-              avgKbps = avgKbps === 0 ? avgKbps + kbps : (avgKbps + kbps) / 2
-              totalKbps += isNaN(kbps) ? 0 : kbps
-              count2++
+        ffmpegProcess.stderr.on('data', (data: Buffer) => {
+          const text = data.toString()
+          stderrOutput += text
+
+          // Parse duration from stderr
+          if (totalTime === 0) {
+            const durationMatch = text.match(/Duration: (\d{2}):(\d{2}):(\d{2}\.\d{2})/)
+            if (durationMatch) {
+              const hours = parseInt(durationMatch[1])
+              const minutes = parseInt(durationMatch[2])
+              const seconds = parseFloat(durationMatch[3])
+              totalTime = hours * 3600 + minutes * 60 + seconds
             }
-            if (!totalFps) totalFps = -1
-            if (!totalKbps) totalKbps = -1
+          }
+        })
 
-            // const msg = `${frames}frame|${fps}fps|${kbps}kbps|${s}size|${timemark}timemark`
-            // const message = `${frames}|${fps}|${kbps}|${s}|${timemark}`
-            // printToChannel(`[ffmpeg] ${msg}`)
-
-            // Calculate time estimation based on current progress and elapsed time
-            const elapsedTime = (Date.now() - startTime) / 1000 // in seconds
-            const estimatedTotalTime = (elapsedTime * 100) / percent
-            const estimatedTimeLeft = Math.max(0, estimatedTotalTime - elapsedTime)
-            const timeLeftMessage = fmtTimeLeft(estimatedTimeLeft)
-
-            progress.report({
-              message: `${round(percent)}% - ${timeLeftMessage}${fps > 0 ? ` (${round(fps)} fps)` : ''}`
-            })
-
-            if (token.isCancellationRequested) {
-              command.kill('SIGKILL')
-              return Promise.reject('User cancelled the operation')
-            }
-          })
-          .on('error', (err) => {
-            printToChannel(`[ffmpeg] error: ${err.message}`)
-            reject(err)
-          })
-          .on('end', () => {
-            avgFps = avgFps && totalFps ? round((avgFps + totalFps / count1) / 2) : -1
-            avgKbps = avgKbps && totalKbps ? round((avgKbps + totalKbps / count2) / 2) : -1
-            // console.debug('[ffmpeg] finished')
+        ffmpegProcess.on('close', (code) => {
+          if (code === 0) {
+            avgFps = avgFps && totalFps && count1 > 0 ? round((avgFps + totalFps / count1) / 2) : -1
+            avgKbps = avgKbps && totalKbps && count2 > 0 ? round((avgKbps + totalKbps / count2) / 2) : -1
             printToChannel(`Average fps: ${avgFps}, average kbps: ${avgKbps}`)
             resolve()
-          })
+          } else {
+            printToChannel(`[ffmpeg] error: Process exited with code ${code}`)
+            printToChannel(stderrOutput)
+            reject(new Error(`ffmpeg exited with code ${code}`))
+          }
+        })
+
+        ffmpegProcess.on('error', (err) => {
+          printToChannel(`[ffmpeg] error: ${err.message}`)
+          reject(err)
+        })
+
+        token.onCancellationRequested(() => {
+          ffmpegProcess.kill('SIGKILL')
+          reject(new Error('ffmpeg was killed with signal SIGKILL'))
+        })
       })
     })
   }

@@ -4,7 +4,7 @@
   "description": "Convert image, audio, and video files using ffmpeg",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -41,13 +41,33 @@
           "type": "boolean",
           "default": false,
           "description": "Enable GPU acceleration (h264_nvenc - Nvidia) video encoding"
+        },
+        "emc.useCustomQuality": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use custom video and audio quality settings instead of defaults"
+        },
+        "emc.videoQuality": {
+          "type": "number",
+          "default": 23,
+          "minimum": 0,
+          "maximum": 51,
+          "description": "Video encoding quality using VBR (CRF: 0=best, 51=worst). Lower values produce better quality but larger files."
+        },
+        "emc.audioQuality": {
+          "type": "number",
+          "default": 4,
+          "minimum": 0,
+          "maximum": 9,
+          "description": "Audio encoding quality (VBR: 0=best, 9=worst). For MP3: 0-9, lower is better quality."
         }
       }
     },
     "commands": [
       {
         "command": "emc.download",
-        "title": "EMC: Download ffmpeg"
+        "title": "EMC: Download ffmpeg",
+        "icon": "$(cloud-download)"
       },
       {
         "command": "emc.convertMp3",
@@ -71,7 +91,8 @@
       },
       {
         "command": "emc.revealFfmpegBin",
-        "title": "EMC: Reveal ffmpeg binary location"
+        "title": "EMC: Reveal ffmpeg binary location",
+        "icon": "$(file-directory)"
       },
       {
         "command": "emc.addToQueue",
@@ -93,9 +114,44 @@
         "icon": "$(info)"
       },
       {
-        "command": "emc.startConversion",
-        "title": "EMC: start conversion",
+        "command": "emc.startConversionQueue",
+        "title": "EMC: start conversion queue",
         "icon": "$(run-all)"
+      },
+      {
+        "command": "emc.changeVideoQuality",
+        "title": "EMC: Change video quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.changeAudioQuality",
+        "title": "EMC: Change audio quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.toggleGpu",
+        "title": "EMC: Toggle GPU acceleration",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.toggleCustomQuality",
+        "title": "EMC: Toggle custom quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.toggleBinCheck",
+        "title": "EMC: Toggle binary check",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.openSettings",
+        "title": "EMC: Open settings",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "emc.refreshBinCheck",
+        "title": "EMC: Refresh binary check",
+        "icon": "$(refresh)"
       }
     ],
     "views": {
@@ -108,6 +164,12 @@
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "emc.submenu",
+        "label": "EMC"
+      }
+    ],
     "viewsWelcome": [
       {
         "view": "emcTreeView",
@@ -149,41 +211,46 @@
           "when": "false"
         },
         {
-          "command": "emc.startConversion",
+          "command": "emc.startConversionQueue",
           "when": "false"
         }
       ],
       "explorer/context": [
         {
+          "submenu": "emc.submenu",
+          "group": "emc"
+        }
+      ],
+      "emc.submenu": [
+        {
           "command": "emc.convertJpg",
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp)$/",
-          "group": "emcGroup@1"
+          "group": "1_convert@1"
         },
         {
           "command": "emc.convertMp3",
           "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "emcGroup@1"
+          "group": "1_convert@2"
         },
         {
           "command": "emc.convertWav",
           "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "emcGroup@1"
+          "group": "1_convert@3"
         },
         {
           "command": "emc.convertMp4",
           "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "emcGroup@2"
+          "group": "2_video@1"
         },
         {
           "command": "emc.convertGif",
-          "title": "EMC: Convert to gif",
           "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
-          "group": "emcGroup@2"
+          "group": "2_video@2"
         },
         {
           "command": "emc.addToQueue",
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "emcGroup@3"
+          "group": "3_queue"
         }
       ],
       "view/title": [
@@ -201,9 +268,14 @@
         },
         {
           "view": "emcTreeView",
-          "command": "emc.startConversion",
+          "command": "emc.startConversionQueue",
           "group": "navigation",
           "when": "view == emcTreeView && emcQueueConvertible && !emcQueueRunning"
+        },
+        {
+          "view": "emcTreeView",
+          "command": "emc.openSettings",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -211,6 +283,41 @@
           "command": "emc.removeFromQueue",
           "when": "viewItem == emcTreeviewItem",
           "group": "inline"
+        },
+        {
+          "command": "emc.changeVideoQuality",
+          "when": "viewItem == emcSettingVideoQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.changeAudioQuality",
+          "when": "viewItem == emcSettingAudioQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.toggleCustomQuality",
+          "when": "viewItem == emcSettingCustomQuality",
+          "group": "inline"
+        },
+        {
+          "command": "emc.toggleGpu",
+          "when": "viewItem == emcSettingGpu",
+          "group": "inline"
+        },
+        {
+          "command": "emc.download",
+          "when": "viewItem == emcSettingBinCheck && emcBinMissing",
+          "group": "inline@1"
+        },
+        {
+          "command": "emc.revealFfmpegBin",
+          "when": "viewItem == emcSettingBinCheck && !emcBinMissing",
+          "group": "inline@3"
+        },
+        {
+          "command": "emc.refreshBinCheck",
+          "when": "viewItem == emcSettingBinCheck",
+          "group": "inline@2"
         }
       ]
     }
@@ -218,30 +325,33 @@
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "test-compile": "tsc -p ./",
+    "test:quality": "ts-node --project tsconfig.test.json test/scripts/test-quality.ts",
     "webpack-dev": "webpack --mode development --watch",
     "webpack": "webpack --mode development",
     "efix": "eslint . --fix",
     "vsce-package": "vsce package"
   },
   "devDependencies": {
-    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/adm-zip": "^0.5.7",
     "@types/node": "24.x",
+    "@types/tar": "^6.1.13",
     "@types/vscode": "^1.105.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
     "@vscode/vsce": "^3.6.2",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.1",
     "ts-loader": "^9.5.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "@stylistic/eslint-plugin-ts": "^4.4.1",
-    "axios": "^1.12.2",
-    "ffmpeg-static": "^5.2.0",
-    "fluent-ffmpeg": "^2.1.3",
-    "pretty-bytes": "^7.1.0"
+    "adm-zip": "^0.5.16",
+    "axios": "^1.13.1",
+    "pretty-bytes": "^7.1.0",
+    "tar": "^7.4.3"
   },
   "repository": {
     "url": "https://github.com/lanly-dev/vscode-emc"

@@ -1,50 +1,52 @@
-import { commands, TreeItem, window } from 'vscode'
+import { commands, TreeItem, window, workspace } from 'vscode'
 import { ExtensionContext, Uri } from 'vscode'
-import * as ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import pathToFfmpeg from 'ffmpeg-static'
 
 import { download } from './ffmpegFn'
+import { getFfmpegBinPath, printToChannel } from './utils'
 import { MediaFileType } from './interfaces'
-import { printToChannel } from './utils'
 import Converter from './Converter'
 import ConverterGif from './ConverterGif'
 import ConverterImg from './ConverterImg'
 import ConverterQueue from './ConverterQueue'
 import TreeViewProvider from './Treeview'
 
-ffmpeg.setFfmpegPath(pathToFfmpeg!)
 const { showErrorMessage, showInformationMessage } = window
 const { MP3, MP4, JPG, WAV, GIF } = MediaFileType
 
+let treeViewProvider: TreeViewProvider
+let pathToFfmpeg: string
+
 export function activate(context: ExtensionContext) {
+  pathToFfmpeg = getFfmpegBinPath(context.extensionPath)
   init()
-  const treeViewProvider = new TreeViewProvider()
+  treeViewProvider = new TreeViewProvider(pathToFfmpeg)
   setupTreeview(treeViewProvider)
   const rc = commands.registerCommand
 
-  context.subscriptions.concat([
-    rc('emc.convertMp3', (uri: Uri) => Converter.convert(uri, MP3)),
-    rc('emc.convertMp4', (uri: Uri) => Converter.convert(uri, MP4)),
-    rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(uri, JPG)),
-    rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(uri, GIF)),
-    rc('emc.convertWav', (uri: Uri) => Converter.convert(uri, WAV)),
-    rc('emc.download', download),
+  context.subscriptions.push(
+    rc('emc.convertMp3', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP3)),
+    rc('emc.convertMp4', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP4)),
+    rc('emc.convertJpg', (uri: Uri) => ConverterImg.convert(pathToFfmpeg, uri, JPG)),
+    rc('emc.convertGif', (uri: Uri) => ConverterGif.convert(pathToFfmpeg, uri, GIF)),
+    rc('emc.convertWav', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, WAV)),
+
+    rc('emc.download', () => download(pathToFfmpeg)),
     rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
+    rc('emc.refreshBinCheck', () => treeViewProvider.refresh()),
+
     rc('emc.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
+    rc('emc.clearQueue', () => treeViewProvider.clearQueue()),
     rc('emc.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
-    rc('emc.startConversion', async () => {
-      const options = treeViewProvider.getConvertFormatOptions()
-      const selected = await window.showQuickPick(options, { placeHolder: 'Select an option' })
-      if (!selected) {
-        showErrorMessage('EMC: No option selected')
-        return
-      }
-      ConverterQueue.convert(treeViewProvider.queue, selected.label as MediaFileType)
-    }),
-    rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo())
-  ])
+    rc('emc.showQueueInfo', () => treeViewProvider.showQueueInfo()),
+    rc('emc.startConversionQueue', startConversionQueue),
+
+    rc('emc.changeAudioQuality', changeAudioQuality),
+    rc('emc.changeVideoQuality', changeVideoQuality),
+    rc('emc.openSettings', () => { commands.executeCommand('workbench.action.openSettings', 'emc') }),
+    rc('emc.toggleCustomQuality', toggleCustomQuality),
+    rc('emc.toggleGpu', toggleGpu)
+  )
 
   // TODO: this is for the batch convert file chooser
   // context.subscriptions.push(
@@ -78,6 +80,66 @@ function init() {
   printToChannel('Easy Media Converter activate successfully!')
 }
 
+async function toggleGpu() {
+  const config = workspace.getConfiguration('emc')
+  const currentValue = config.get('enableGpuAcceleration', false)
+  await config.update('enableGpuAcceleration', !currentValue, true)
+  treeViewProvider.refresh()
+}
+
+async function changeAudioQuality() {
+  const config = workspace.getConfiguration('emc')
+  const currentValue = config.get('audioQuality')
+  const input = await window.showInputBox({
+    prompt: 'Enter audio quality (VBR: 0=best, 9=worst)',
+    value: currentValue!.toString(),
+    validateInput: (value) => {
+      const num = parseInt(value)
+      if (isNaN(num) || num < 0 || num > 9) return 'Please enter a number between 0 and 9'
+      return null
+    }
+  })
+  if (input) {
+    await config.update('audioQuality', parseInt(input), true)
+    treeViewProvider.refresh()
+  }
+}
+
+async function changeVideoQuality() {
+  const config = workspace.getConfiguration('emc')
+  const currentValue = config.get('videoQuality')
+  const input = await window.showInputBox({
+    prompt: 'Enter video quality (CRF/VBR: 0=best, 51=worst)',
+    value: currentValue!.toString(),
+    validateInput: (value) => {
+      const num = parseInt(value)
+      if (isNaN(num) || num < 0 || num > 51) return 'Please enter a number between 0 and 51'
+      return null
+    }
+  })
+  if (input) {
+    await config.update('videoQuality', parseInt(input), true)
+    treeViewProvider.refresh()
+  }
+}
+
+async function toggleCustomQuality() {
+  const config = workspace.getConfiguration('emc')
+  const currentValue = config.get('useCustomQuality', false)
+  await config.update('useCustomQuality', !currentValue, true)
+  treeViewProvider.refresh()
+}
+
+async function startConversionQueue() {
+  const options = treeViewProvider.getConvertFormatOptions()
+  const selected = await window.showQuickPick(options, { placeHolder: 'Select an option' })
+  if (!selected) {
+    showErrorMessage('EMC: No option selected')
+    return
+  }
+  ConverterQueue.convert(pathToFfmpeg, treeViewProvider.queue, selected.label as MediaFileType)
+}
+
 function setupTreeview(treeViewProvider: TreeViewProvider) {
   const treeview = window.createTreeView('emcTreeView', { treeDataProvider: treeViewProvider })
   treeViewProvider.onDidChangeTreeData(e => {
@@ -94,11 +156,12 @@ function revealFfmpegBin() {
     return
   }
   if (!fs.existsSync(pathToFfmpeg)) {
-    const msg = 'The ffmpeg binary is unavailable 😐'
+    const msg = `The ffmpeg binary is unavailable at path: ${pathToFfmpeg}`
     showInformationMessage(msg)
     printToChannel(msg)
     return
   }
+  console.log(`Revealing ffmpeg binary at: ${pathToFfmpeg}`)
   commands.executeCommand('revealFileInOS', Uri.file(pathToFfmpeg))
 }
 

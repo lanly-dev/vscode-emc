@@ -1,6 +1,7 @@
-import { commands, QuickPickItem, window } from 'vscode'
+import { commands, QuickPickItem, window, workspace, ThemeIcon } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
+import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
 const { showInformationMessage } = window
@@ -11,10 +12,16 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   readonly onDidChangeTreeData: Event<void> = this._onDidChangeTreeData.event
 
   public queue: Uri[] = []
+  public isBinExisting: boolean = false
 
-  constructor() { }
+  constructor(public ffmpegPath: string) {
+    this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.updateBinStatus()
+  }
 
   refresh(): void {
+    this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.updateBinStatus()
     this._onDidChangeTreeData.fire()
   }
 
@@ -27,21 +34,95 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     commands.executeCommand('setContext', 'emcQueueConvertible', isConvertible)
   }
 
+  private updateBinStatus(): void {
+    commands.executeCommand('setContext', 'emcBinMissing', !this.isBinExisting)
+  }
+
   getTreeItem(element: TreeItem): TreeItem {
     return element
   }
 
   getChildren(element?: TreeItem): Thenable<TreeItem[]> {
-    if (element) return Promise.resolve([])
+    if (element) {
+      // If it's the Settings item, return its children
+      if (element.contextValue === 'emcSettingsItem') return Promise.resolve(this.getSettingsChildren())
+      // If it's the Custom Quality item, return its children
+      if (element.contextValue === 'emcSettingCustomQuality') return Promise.resolve(this.getCustomQualityChildren())
+      return Promise.resolve([])
+    }
 
-    // If no element is provided == root element
-    return Promise.resolve(
-      this.queue.map((file) => {
-        const item = new TreeItem(file, TreeItemCollapsibleState.None)
-        item.contextValue = 'emcTreeviewItem'
-        return item
-      })
+    // Root level: Settings + Queue items
+    const items: TreeItem[] = []
+
+    // Add Settings item at the top
+    const settingsItem = new TreeItem('Settings', TreeItemCollapsibleState.Collapsed)
+    settingsItem.contextValue = 'emcSettingsItem'
+    settingsItem.iconPath = new ThemeIcon('settings-gear')
+    items.push(settingsItem)
+
+    // Add queue items
+    const queueItems = this.queue.map((file) => {
+      const item = new TreeItem(file, TreeItemCollapsibleState.None)
+      item.contextValue = 'emcTreeviewItem'
+      return item
+    })
+    items.push(...queueItems)
+
+    return Promise.resolve(items)
+  }
+
+  private getSettingsChildren(): TreeItem[] {
+    const config = workspace.getConfiguration('emc')
+    const items: TreeItem[] = []
+
+    // Bin check setting
+    const binCheckItem = new TreeItem(
+      `Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`,
+      TreeItemCollapsibleState.None
     )
+    binCheckItem.contextValue = 'emcSettingBinCheck'
+    binCheckItem.iconPath = new ThemeIcon(this.isBinExisting ? 'check' : 'warning')
+    // Add download command when binary is missing
+    items.push(binCheckItem)
+
+    // GPU setting
+    const gpuEnabled = config.get('enableGpuAcceleration', false)
+    const gpuItem = new TreeItem(`GPU enabled: ${gpuEnabled ? '✔️' : '❌'}`, TreeItemCollapsibleState.None)
+    gpuItem.contextValue = 'emcSettingGpu'
+    gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
+    items.push(gpuItem)
+
+    // Custom Quality setting (parent with collapsible children)
+    const useCustomQuality = config.get('useCustomQuality', false)
+    const customQualityLabel = `Custom Quality: ${useCustomQuality ? '✔️' : '❌'}`
+    const state = useCustomQuality ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
+    const customQualityItem = new TreeItem(customQualityLabel, state)
+    customQualityItem.contextValue = 'emcSettingCustomQuality'
+    customQualityItem.iconPath = new ThemeIcon('dashboard')
+    items.push(customQualityItem)
+
+    return items
+  }
+
+  private getCustomQualityChildren(): TreeItem[] {
+    const config = workspace.getConfiguration('emc')
+    const items: TreeItem[] = []
+
+    // Video quality setting
+    const videoQuality = config.get('videoQuality', 23)
+    const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
+    videoQualityItem.contextValue = 'emcSettingVideoQuality'
+    videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
+    items.push(videoQualityItem)
+
+    // Audio quality setting
+    const audioQuality = config.get('audioQuality', 4)
+    const audioQualityItem = new TreeItem(`Audio Quality: ${audioQuality}`, TreeItemCollapsibleState.None)
+    audioQualityItem.contextValue = 'emcSettingAudioQuality'
+    audioQualityItem.iconPath = new ThemeIcon('unmute')
+    items.push(audioQualityItem)
+
+    return items
   }
 
   addToQueue(files: Uri[]): void {
