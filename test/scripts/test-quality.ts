@@ -141,12 +141,9 @@ async function runTests() {
   const platform = process.platform
   let ffmpegPath: string
 
-  if (platform === 'win32')
-    ffmpegPath = path.join(binPath, 'ffmpeg.exe')
-  else if (platform === 'darwin')
-    ffmpegPath = path.join(binPath, 'ffmpeg')
-  else
-    ffmpegPath = path.join(binPath, 'ffmpeg')
+  if (platform === 'win32') ffmpegPath = path.join(binPath, 'ffmpeg.exe')
+  else if (platform === 'darwin') ffmpegPath = path.join(binPath, 'ffmpeg')
+  else ffmpegPath = path.join(binPath, 'ffmpeg')
 
   // Check if ffmpeg exists in bin, otherwise use system ffmpeg
   if (!fs.existsSync(ffmpegPath)) {
@@ -210,8 +207,15 @@ async function runTests() {
         passed++
 
         // Clean up output file
-        if (fs.existsSync(outputFile))
-          fs.unlinkSync(outputFile)
+        if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile)
+
+        // // Move output file to scripts directory
+        // const scriptsDir = path.join(__dirname)
+        // const finalOutput = path.join(scriptsDir, path.basename(outputFile))
+        // if (fs.existsSync(outputFile)) {
+        //   fs.renameSync(outputFile, finalOutput)
+        //   console.log(`   📁 Saved to: ${finalOutput}`)
+        // }
       } else {
         console.log(`   ❌ FAIL: ffmpeg conversion failed`)
         failed++
