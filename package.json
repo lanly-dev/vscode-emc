@@ -224,7 +224,7 @@
       "emc.submenu": [
         {
           "command": "emc.convertJpg",
-          "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp)$/",
+          "when": "resourceExtname =~ /\\.(gif|jpg|jpeg|png|webp)$/",
           "group": "1_convert@1"
         },
         {
@@ -239,12 +239,12 @@
         },
         {
           "command": "emc.convertMp4",
-          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|wmv)$/",
+          "when": "resourceExtname =~ /\\.(avi|flv|gif|mkv|mp4|ts|webm|wmv)$/",
           "group": "2_video@1"
         },
         {
           "command": "emc.convertGif",
-          "when": "resourceExtname =~ /\\.(avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
+          "when": "resourceExtname =~ /\\.(jpg|avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
           "group": "2_video@2"
         },
         {

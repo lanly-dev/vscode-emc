@@ -10,14 +10,18 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
 <img src='https://github.com/lanly-dev/vscode-emc/blob/main/media/vscodeignore/emc.gif?raw=true' width='450'/>
 
 ## Features
-- For image: `jpg|jpeg|png|webp` --> Convert to `jpg`
-- For audio: `ape|flac|mp3|wav|wma` --> Convert to `mp3|wav`
-- For video: `avi|flv|mkv|mp4|ts|webm|wmv` --> Convert to `mp4`
+- For image: `jpg|jpeg|png|webp` --> `jpg`
+- For audio: `ape|flac|mp3|wav|wma` --> `mp3|wav`
+- For video: `avi|flv|mkv|mp4|ts|webm|wmv` --> `mp4`
+- For gif:
+  - `gif` --> `gif` only 1st frame
+  - `gif` --> `jpg`
+  - `gif` --> `mp4` will fail if not multi-frames
+  - `jpg|avi|flv|mkv|mp4|ts|webm|wmv` --> `gif`
 - Batch conversion
 
 - Other use cases:
   - Extract audio from video by converting it to an audio format
-  - Converting to the same format to reduce its size (and quality, as reducing size often results in quality loss) in some cases if you want a smaller size, if it increases the file size - just stick with the original
 
 ## Release Notes
 ### 2.0.0
