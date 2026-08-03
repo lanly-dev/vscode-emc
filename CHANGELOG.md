@@ -27,8 +27,8 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Switch binary download from [eugeneware](https://github.com/eugeneware/ffmpeg-static) to [BtbN](https://github.com/BtbN/FFmpeg-Builds) with zip/tar extraction
 - Using child process to call `ffmpeg` binary instead [fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
 - Publish to ovsx
-- webpack 5.109.2 compiled successfully in 2938 ms
-- 9 files, 181.06 KB, 1.131.0, req1.125.0
+- webpack 5.109.2 compiled successfully in 2912 ms
+- 9 files, 181.04 KB, 1.131.0, req1.125.0
 ```txt
 INFO  Files included in the VSIX:
 easymediaconverter-3.0.0.vsix
@@ -37,7 +37,7 @@ easymediaconverter-3.0.0.vsix
 └─ extension/
    ├─ LICENSE.md [1.06 KB]
    ├─ changelog.md [4.01 KB]
-   ├─ package.json [9.79 KB]
+   ├─ package.json [9.78 KB]
    ├─ readme.md [2 KB]
    ├─ dist/
    │  └─ extension.js [403.39 KB]

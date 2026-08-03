@@ -1,6 +1,6 @@
 {
   "name": "easymediaconverter",
-  "displayName": "Easy Media Converter 🍰",
+  "displayName": "Easy Media Converter",
   "description": "Convert image, audio, and video files using ffmpeg",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
