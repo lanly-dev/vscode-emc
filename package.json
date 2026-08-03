@@ -161,7 +161,7 @@
     "views": {
       "explorer": [
         {
-          "id": "emcTreeView",
+          "id": "EMC_TREEVIEW",
           "name": "EMC",
           "contextualTitle": "EMC",
           "icon": "media/emc.svg"
@@ -170,14 +170,14 @@
     },
     "submenus": [
       {
-        "id": "emc.submenu",
+        "id": "EMC_SUBMENU",
         "label": "EMC"
       }
     ],
     "viewsWelcome": [
       {
-        "view": "emcTreeView",
-        "contents": "The queue view is empty"
+        "view": "EMC_TREEVIEW",
+        "contents": "Loading... Please wait for the extension to initialize."
       }
     ],
     "menus": {
@@ -221,11 +221,11 @@
       ],
       "explorer/context": [
         {
-          "submenu": "emc.submenu",
+          "submenu": "EMC_SUBMENU",
           "group": "emc"
         }
       ],
-      "emc.submenu": [
+      "EMC_SUBMENU": [
         {
           "command": "emc.convertJpg",
           "when": "resourceExtname =~ /\\.(gif|jpg|jpeg|png|webp)$/",
@@ -264,25 +264,25 @@
       ],
       "view/title": [
         {
-          "view": "emcTreeView",
+          "view": "EMC_TREEVIEW",
           "command": "emc.clearQueue",
           "group": "navigation",
-          "when": "view == emcTreeView && emcItemCount > 0 && !emcQueueRunning"
+          "when": "view == EMC_TREEVIEW && EMC_ITEM_COUNT > 0 && !EMC_QUEUE_RUNNING"
         },
         {
-          "view": "emcTreeView",
+          "view": "EMC_TREEVIEW",
           "command": "emc.showQueueInfo",
           "group": "navigation",
-          "when": "view == emcTreeView && emcItemCount > 0"
+          "when": "view == EMC_TREEVIEW && EMC_ITEM_COUNT > 0"
         },
         {
-          "view": "emcTreeView",
+          "view": "EMC_TREEVIEW",
           "command": "emc.startConversionQueue",
           "group": "navigation",
-          "when": "view == emcTreeView && emcQueueConvertible && !emcQueueRunning"
+          "when": "view == EMC_TREEVIEW && EMC_QUEUE_CONVERTIBLE && !EMC_QUEUE_RUNNING"
         },
         {
-          "view": "emcTreeView",
+          "view": "EMC_TREEVIEW",
           "command": "emc.openSettings",
           "group": "navigation"
         }
@@ -290,42 +290,42 @@
       "view/item/context": [
         {
           "command": "emc.removeFromQueue",
-          "when": "viewItem == emcTreeviewItem",
+          "when": "viewItem == EMC_TREEVIEW_ITEM",
           "group": "inline"
         },
         {
           "command": "emc.changeVideoQuality",
-          "when": "viewItem == emcSettingVideoQuality",
+          "when": "viewItem == EMC_SETTING_VIDEO_QUALITY",
           "group": "inline"
         },
         {
           "command": "emc.changeAudioQuality",
-          "when": "viewItem == emcSettingAudioQuality",
+          "when": "viewItem == EMC_SETTING_AUDIO_QUALITY",
           "group": "inline"
         },
         {
           "command": "emc.toggleCustomQuality",
-          "when": "viewItem == emcSettingCustomQuality",
+          "when": "viewItem == EMC_SETTING_CUSTOM_QUALITY",
           "group": "inline"
         },
         {
           "command": "emc.toggleGpu",
-          "when": "viewItem == emcSettingGpu",
+          "when": "viewItem == EMC_SETTING_GPU",
           "group": "inline"
         },
         {
           "command": "emc.download",
-          "when": "viewItem == emcSettingBinCheck && emcBinMissing",
+          "when": "viewItem == EMC_SETTING_BIN_CHECK && EMC_BIN_MISSING",
           "group": "inline@1"
         },
         {
           "command": "emc.revealFfmpegBin",
-          "when": "viewItem == emcSettingBinCheck && !emcBinMissing",
+          "when": "viewItem == EMC_SETTING_BIN_CHECK && !EMC_BIN_MISSING",
           "group": "inline@3"
         },
         {
           "command": "emc.refreshBinCheck",
-          "when": "viewItem == emcSettingBinCheck",
+          "when": "viewItem == EMC_SETTING_BIN_CHECK",
           "group": "inline@2"
         }
       ]

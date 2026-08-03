@@ -34,7 +34,7 @@ export default class ConverterQueue {
       `VideoQuality=${videoQuality}, AudioQuality=${audioQuality}`
     )
 
-    await commands.executeCommand('setContext', 'emcQueueRunning', true)
+    await commands.executeCommand('setContext', 'EMC_QUEUE_RUNNING', true)
 
     const totalFiles = files.length
     let completed = 0
@@ -46,7 +46,7 @@ export default class ConverterQueue {
       printToChannel(`📁Output directory created: ${outputDir}`)
     } catch (error: any) {
       showPrintErrorMsg(error)
-      await commands.executeCommand('setContext', 'emcQueueRunning', false)
+      await commands.executeCommand('setContext', 'EMC_QUEUE_RUNNING', false)
       return
     }
 
@@ -119,7 +119,7 @@ export default class ConverterQueue {
       printToChannel(`Batch conversion error: ${error}`)
       showInformationMessage('Batch conversion error. Check the output panel for details.')
     } finally {
-      await commands.executeCommand('setContext', 'emcQueueRunning', false)
+      await commands.executeCommand('setContext', 'EMC_QUEUE_RUNNING', false)
     }
   }
 

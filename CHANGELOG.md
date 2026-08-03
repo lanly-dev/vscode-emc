@@ -1,17 +1,21 @@
 # Change Log
-
-All notable changes to the "Easy Media Converter" extension will be documented in this file.
-
+All notable changes to the "Easy Media Converter" extension will be documented in this file. \
 Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how to structure this file.
 
 ## [Future Works]
 - Drag and drop to queue
 - FileChooser for queue
 - Integrate with Spectrogram extension
-- Merging feature
+- Crop/merging feature
 - Show media information
 - Time estimation for batch conversion
-- Update/fix icon/logo
+- Divide into equal duration
+- Short video format conversion
+- 1st/last picture extraction
+- Generate sub
+- Embed sub
+- Generate text - connect to lemonade
+- Connect to spectrogram
 
 ## [3.0.0] - August 2026
 
@@ -31,7 +35,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - `registerTreeDataProvider()` vs `createTreeView()`
   - `registerTreeDataProvider()` must be declared in `package.json`. It is for simple treeview, and it does not support badges or treeview methods and returns a `Disposable` object
   - `createTreeView()` dynamically creates a tree view at runtime, meaning it allows the creation of tree views without pre-declaration in `package.json`. It returns treeview instance
-  - Hybrid solution: Declare the tree view in `package.json` but avoid using `registerTreeDataProvider()`
+  - Hybrid solution: Declare the tree view in `package.json` but don't use `registerTreeDataProvider()`
 ## Reference
 - https://code.visualstudio.com/api/extension-guides/tree-view
 

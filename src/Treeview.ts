@@ -26,16 +26,16 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   }
 
   private updateItemCount(): void {
-    commands.executeCommand('setContext', 'emcItemCount', this.queue.length)
+    commands.executeCommand('setContext', 'EMC_ITEM_COUNT', this.queue.length)
   }
 
   private updateBatchConvertibleStatus(): void {
     const isConvertible = this.isQueueConvertible()
-    commands.executeCommand('setContext', 'emcQueueConvertible', isConvertible)
+    commands.executeCommand('setContext', 'EMC_QUEUE_CONVERTIBLE', isConvertible)
   }
 
   private updateBinStatus(): void {
-    commands.executeCommand('setContext', 'emcBinMissing', !this.isBinExisting)
+    commands.executeCommand('setContext', 'EMC_BIN_MISSING', !this.isBinExisting)
   }
 
   getTreeItem(element: TreeItem): TreeItem {
@@ -45,9 +45,9 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
   getChildren(element?: TreeItem): Thenable<TreeItem[]> {
     if (element) {
       // If it's the Settings item, return its children
-      if (element.contextValue === 'emcSettingsItem') return Promise.resolve(this.getSettingsChildren())
+      if (element.contextValue === 'EMC_SETTINGS_ITEM') return Promise.resolve(this.getSettingsChildren())
       // If it's the Custom Quality item, return its children
-      if (element.contextValue === 'emcSettingCustomQuality') return Promise.resolve(this.getCustomQualityChildren())
+      if (element.contextValue === 'EMC_CUSTOM_QUALITY_ITEM') return Promise.resolve(this.getCustomQualityChildren())
       return Promise.resolve([])
     }
 
@@ -56,14 +56,20 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
     // Add Settings item at the top
     const settingsItem = new TreeItem('Settings', TreeItemCollapsibleState.Collapsed)
-    settingsItem.contextValue = 'emcSettingsItem'
+    settingsItem.contextValue = 'EMC_SETTINGS_ITEM'
     settingsItem.iconPath = new ThemeIcon('settings-gear')
     items.push(settingsItem)
+
+    const queueLabel = `Queue (${this.queue.length})`
+    const queueItem = new TreeItem(queueLabel, TreeItemCollapsibleState.Expanded)
+    queueItem.contextValue = 'EMC_QUEUE_ITEM'
+    queueItem.iconPath = new ThemeIcon('list-selection')
+    items.push(queueItem)
 
     // Add queue items
     const queueItems = this.queue.map((file) => {
       const item = new TreeItem(file, TreeItemCollapsibleState.None)
-      item.contextValue = 'emcTreeviewItem'
+      item.contextValue = 'EMC_TREEVIEW_ITEM'
       return item
     })
     items.push(...queueItems)
@@ -80,7 +86,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
       `Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`,
       TreeItemCollapsibleState.None
     )
-    binCheckItem.contextValue = 'emcSettingBinCheck'
+    binCheckItem.contextValue = 'EMC_SETTING_BIN_CHECK'
     binCheckItem.iconPath = new ThemeIcon(this.isBinExisting ? 'check' : 'warning')
     // Add download command when binary is missing
     items.push(binCheckItem)
@@ -88,7 +94,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     // GPU setting
     const gpuEnabled = config.get('enableGpuAcceleration', false)
     const gpuItem = new TreeItem(`GPU enabled: ${gpuEnabled ? '✔️' : '❌'}`, TreeItemCollapsibleState.None)
-    gpuItem.contextValue = 'emcSettingGpu'
+    gpuItem.contextValue = 'EMC_SETTING_GPU'
     gpuItem.iconPath = new ThemeIcon(gpuEnabled ? 'vm-active' : 'vm-outline')
     items.push(gpuItem)
 
@@ -97,7 +103,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const customQualityLabel = `Custom Quality: ${useCustomQuality ? '✔️' : '❌'}`
     const state = useCustomQuality ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
     const customQualityItem = new TreeItem(customQualityLabel, state)
-    customQualityItem.contextValue = 'emcSettingCustomQuality'
+    customQualityItem.contextValue = 'EMC_SETTING_CUSTOM_QUALITY'
     customQualityItem.iconPath = new ThemeIcon('dashboard')
     items.push(customQualityItem)
 
@@ -111,14 +117,14 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     // Video quality setting
     const videoQuality = config.get('videoQuality', 23)
     const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
-    videoQualityItem.contextValue = 'emcSettingVideoQuality'
+    videoQualityItem.contextValue = 'EMC_SETTING_VIDEO_QUALITY'
     videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
     items.push(videoQualityItem)
 
     // Audio quality setting
     const audioQuality = config.get('audioQuality', 4)
     const audioQualityItem = new TreeItem(`Audio Quality: ${audioQuality}`, TreeItemCollapsibleState.None)
-    audioQualityItem.contextValue = 'emcSettingAudioQuality'
+    audioQualityItem.contextValue = 'EMC_SETTING_AUDIO_QUALITY'
     audioQualityItem.iconPath = new ThemeIcon('unmute')
     items.push(audioQualityItem)
 

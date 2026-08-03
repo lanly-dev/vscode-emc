@@ -141,7 +141,7 @@ async function startConversionQueue() {
 }
 
 function setupTreeview(treeViewProvider: TreeViewProvider) {
-  const treeview = window.createTreeView('emcTreeView', { treeDataProvider: treeViewProvider })
+  const treeview = window.createTreeView('EMC_TREEVIEW', { treeDataProvider: treeViewProvider })
   treeViewProvider.onDidChangeTreeData(e => {
     const itemCount = treeViewProvider.queue.length
     treeview.badge = itemCount
