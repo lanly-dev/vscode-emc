@@ -8,7 +8,7 @@ import * as os from 'os'
 import * as stream from 'stream'
 import * as path from 'path'
 
-import * as AdmZip from 'adm-zip'
+import AdmZip from 'adm-zip'
 import * as tar from 'tar'
 
 import axios from 'axios'
@@ -123,7 +123,7 @@ function downloadStream(url: string, dest: string) {
   }, (progress) => {
     return axios.get(url, { responseType: 'stream' }).then((response) => {
       const { data: steam } = response
-      const total = response.headers['content-length']
+      const total = response.headers['content-length']?.toString() || '-1'
       const totalMb = pb(parseInt(total))
       let dlTotal = 0
       steam.on('data', (chunk: Buffer) => {

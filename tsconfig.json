@@ -3,11 +3,11 @@
 		"test"
 	],
 	"compilerOptions": {
-		"module": "node16",
+		"module": "ESNext",
 		"target": "ESNext",
 		"rootDir": "src",
 		"outDir": "out",
-		"moduleResolution": "node16",
+		"moduleResolution": "bundler",
 		"sourceMap": true,
 		"strict": true, /* enable all strict type-checking options */
 		/* Additional Checks */
