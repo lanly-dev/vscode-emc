@@ -1,24 +1,26 @@
-import typescriptEslint from '@typescript-eslint/eslint-plugin'
-import stylisticTs from '@stylistic/eslint-plugin-ts'
-import tsParser from '@typescript-eslint/parser'
+import globals from 'globals'
+import typescriptEslint from 'typescript-eslint'
+import stylistic from '@stylistic/eslint-plugin'
 
 export default [{
-  files: ['**/*.ts']
+  ignores: ['dist', 'node_modules', 'test', '!**/test/scripts/'],
 }, {
-  ignores: ['**/out', '**/dist', '**/test/*', '!**/test/scripts/']
-}, {
+  files: ['**/*.ts'],
   plugins: {
-    '@typescript-eslint': typescriptEslint,
-    '@stylistic/ts': stylisticTs
+    '@typescript-eslint': typescriptEslint.plugin,
+    '@stylistic': stylistic
   },
   languageOptions: {
-    parser: tsParser,
+    parser: typescriptEslint.parser,
     ecmaVersion: 2022,
-    sourceType: 'module'
+    sourceType: 'module',
+    globals: {
+      ...globals.node
+    }
   },
   rules: {
     '@typescript-eslint/naming-convention': ['warn', { selector: 'import', format: ['camelCase', 'PascalCase'] }],
-    '@stylistic/ts/member-delimiter-style': [
+    '@stylistic/member-delimiter-style': [
       'error',
       {
         multiline: {

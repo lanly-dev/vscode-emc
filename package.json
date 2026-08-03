@@ -6,7 +6,7 @@
   "publisher": "lanly-dev",
   "version": "3.0.0",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.125.0"
   },
   "categories": [
     "Other"
@@ -82,12 +82,16 @@
         "title": "EMC: Convert to jpg"
       },
       {
+        "command": "emc.convertWav",
+        "title": "EMC: Convert to wav"
+      },
+      {
         "command": "emc.convertGif",
         "title": "EMC: Convert to gif"
       },
       {
-        "command": "emc.convertWav",
-        "title": "EMC: Convert to wav"
+        "command": "emc.genSub",
+        "title": "EMC: Generate subtitle file"
       },
       {
         "command": "emc.revealFfmpegBin",
@@ -248,9 +252,14 @@
           "group": "2_video@2"
         },
         {
+          "command": "emc.genSub",
+          "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
+          "group": "3_util@1"
+        },
+        {
           "command": "emc.addToQueue",
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "3_queue"
+          "group": "4_queue@1"
         }
       ],
       "view/title": [
@@ -332,26 +341,26 @@
     "vsce-package": "vsce package"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.7",
-    "@types/node": "24.x",
-    "@types/tar": "^6.1.13",
-    "@types/vscode": "^1.105.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.3",
-    "@typescript-eslint/parser": "^8.46.3",
-    "@vscode/vsce": "^3.6.2",
-    "eslint": "^9.39.1",
-    "ts-loader": "^9.5.4",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/adm-zip": "^0.5.8",
+    "@types/node": "26.x",
+    "@types/tar": "^7.0.87",
+    "@types/vscode": "^1.125.0",
+    "eslint": "^10.8.0",
+    "globals": "^17.9.0",
+    "ovsx": "^1.1.0",
+    "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3",
-    "webpack": "^5.102.1",
-    "webpack-cli": "^6.0.1"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "webpack": "^5.109.2",
+    "webpack-cli": "^7.2.2"
   },
   "dependencies": {
-    "@stylistic/eslint-plugin-ts": "^4.4.1",
-    "adm-zip": "^0.5.16",
-    "axios": "^1.13.1",
-    "pretty-bytes": "^7.1.0",
-    "tar": "^7.4.3"
+    "adm-zip": "^0.6.0",
+    "axios": "^1.19.0",
+    "pretty-bytes": "^7.1.1",
+    "tar": "^7.5.22"
   },
   "repository": {
     "url": "https://github.com/lanly-dev/vscode-emc"

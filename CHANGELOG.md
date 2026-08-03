@@ -13,6 +13,8 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Time estimation for batch conversion
 - Update/fix icon/logo
 
+## [3.0.0] - August 2026
+
 ## [2.0.0] - May 2025
 - Add treeview - the main feature
   - Shows the queue and queue's info
