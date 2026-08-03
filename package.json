@@ -90,10 +90,6 @@
         "title": "EMC: Convert to gif"
       },
       {
-        "command": "emc.genSub",
-        "title": "EMC: Generate subtitle file"
-      },
-      {
         "command": "emc.revealFfmpegBin",
         "title": "EMC: Reveal ffmpeg binary location",
         "icon": "$(file-directory)"
@@ -250,11 +246,6 @@
           "command": "emc.convertGif",
           "when": "resourceExtname =~ /\\.(jpg|avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
           "group": "2_video@2"
-        },
-        {
-          "command": "emc.genSub",
-          "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
-          "group": "3_util@1"
         },
         {
           "command": "emc.addToQueue",
