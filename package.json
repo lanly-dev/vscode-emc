@@ -162,8 +162,8 @@
       "explorer": [
         {
           "id": "EMC_TREEVIEW",
-          "name": "EMC",
-          "contextualTitle": "EMC",
+          "name": "Easy Media Converter",
+          "contextualTitle": "🍰",
           "icon": "media/emc.svg"
         }
       ]
@@ -265,24 +265,6 @@
       "view/title": [
         {
           "view": "EMC_TREEVIEW",
-          "command": "emc.clearQueue",
-          "group": "navigation",
-          "when": "view == EMC_TREEVIEW && EMC_ITEM_COUNT > 0 && !EMC_QUEUE_RUNNING"
-        },
-        {
-          "view": "EMC_TREEVIEW",
-          "command": "emc.showQueueInfo",
-          "group": "navigation",
-          "when": "view == EMC_TREEVIEW && EMC_ITEM_COUNT > 0"
-        },
-        {
-          "view": "EMC_TREEVIEW",
-          "command": "emc.startConversionQueue",
-          "group": "navigation",
-          "when": "view == EMC_TREEVIEW && EMC_QUEUE_CONVERTIBLE && !EMC_QUEUE_RUNNING"
-        },
-        {
-          "view": "EMC_TREEVIEW",
           "command": "emc.openSettings",
           "group": "navigation"
         }
@@ -327,6 +309,21 @@
           "command": "emc.refreshBinCheck",
           "when": "viewItem == EMC_SETTING_BIN_CHECK",
           "group": "inline@2"
+        },
+        {
+          "command": "emc.clearQueue",
+          "group": "inline",
+          "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_ITEM_COUNT > 0 && !EMC_QUEUE_RUNNING"
+        },
+        {
+          "command": "emc.showQueueInfo",
+          "group": "inline",
+          "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_ITEM_COUNT > 0"
+        },
+        {
+          "command": "emc.startConversionQueue",
+          "group": "inline",
+          "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_QUEUE_CONVERTIBLE && !EMC_QUEUE_RUNNING"
         }
       ]
     }

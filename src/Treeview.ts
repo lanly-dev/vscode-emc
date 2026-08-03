@@ -48,10 +48,11 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
       if (element.contextValue === 'EMC_SETTINGS_ITEM') return Promise.resolve(this.getSettingsChildren())
       // If it's the Custom Quality item, return its children
       if (element.contextValue === 'EMC_CUSTOM_QUALITY_ITEM') return Promise.resolve(this.getCustomQualityChildren())
+      if (element.contextValue === 'EMC_QUEUE_LABEL_ITEM') return Promise.resolve(this.getQueueChildren())
       return Promise.resolve([])
     }
 
-    // Root level: Settings + Queue items
+    // Root level: Settings + Queue label ⬇️
     const items: TreeItem[] = []
 
     // Add Settings item at the top
@@ -62,17 +63,9 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
     const queueLabel = `Queue (${this.queue.length})`
     const queueItem = new TreeItem(queueLabel, TreeItemCollapsibleState.Expanded)
-    queueItem.contextValue = 'EMC_QUEUE_ITEM'
+    queueItem.contextValue = 'EMC_QUEUE_LABEL_ITEM'
     queueItem.iconPath = new ThemeIcon('list-selection')
     items.push(queueItem)
-
-    // Add queue items
-    const queueItems = this.queue.map((file) => {
-      const item = new TreeItem(file, TreeItemCollapsibleState.None)
-      item.contextValue = 'EMC_TREEVIEW_ITEM'
-      return item
-    })
-    items.push(...queueItems)
 
     return Promise.resolve(items)
   }
@@ -129,6 +122,14 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     items.push(audioQualityItem)
 
     return items
+  }
+
+  private getQueueChildren(): TreeItem[] {
+    return this.queue.map((file) => {
+      const item = new TreeItem(file, TreeItemCollapsibleState.None)
+      item.contextValue = 'EMC_TREEVIEW_ITEM'
+      return item
+    })
   }
 
   addToQueue(files: Uri[]): void {
