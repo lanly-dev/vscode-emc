@@ -3,15 +3,18 @@
 *.zip
 **/*.map
 **/*.ts
-dist/ffmpeg.exe
+**/*LICENSE.txt
 eslint.config.mjs
-media/vscodeignore
 tsconfig.json
+tsconfig.test.json
 vsc-extension-quickstart.md
 webpack.config.js
 
 # Directories
 .vscode
+bin
+media/vscodeignore
 node_modules
+out
 src
 test

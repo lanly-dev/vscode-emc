@@ -4,10 +4,10 @@
 package-lock.json
 
 # Directories
-bin/
-dist/
+bin
+dist
 # for compiled output
-out/
-node_modules/
+out
+node_modules
 test/*
-!test/scripts/
+!test/scripts

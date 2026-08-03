@@ -1,23 +1,50 @@
 # Change Log
-All notable changes to the "Easy Media Converter" extension will be documented in this file. \
+All notable changes to the "Easy Media Converter" extension will be documented in this file.\
 Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how to structure this file.
 
 ## [Future Works]
+- 1st/last picture extraction
+- Connect to spectrogram
+- Crop/merging feature
+- Divide into equal duration
 - Drag and drop to queue
 - FileChooser for queue
-- Integrate with Spectrogram extension
-- Crop/merging feature
-- Show media information
-- Time estimation for batch conversion
-- Divide into equal duration
-- Short video format conversion
-- 1st/last picture extraction
 - Generate sub
 - Embed sub
 - Generate text - connect to lemonade
-- Connect to spectrogram
+- Integrate with Spectrogram extension
+- Progress percentage
+- Short video format conversion
+- Show media information
+- Time estimation for batch conversion
 
 ## [3.0.0] - August 2026
+- Improve Treeview and add settings in it
+- New activity-bar/explorer icon
+- Custom quality configuration for conversion
+- Remove `mp3cd` conversion config
+- Support GIF conversion
+- Switch binary download from [eugeneware](https://github.com/eugeneware/ffmpeg-static) to [BtbN](https://github.com/BtbN/FFmpeg-Builds) with zip/tar extraction
+- Using child process to call `ffmpeg` binary instead [fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
+- Publish to ovsx
+- webpack 5.109.2 compiled successfully in 2938 ms
+- 9 files, 181.06 KB, 1.131.0, req1.125.0
+```txt
+INFO  Files included in the VSIX:
+easymediaconverter-3.0.0.vsix
+├─ [Content_Types].xml
+├─ extension.vsixmanifest
+└─ extension/
+   ├─ LICENSE.md [1.06 KB]
+   ├─ changelog.md [4.01 KB]
+   ├─ package.json [9.79 KB]
+   ├─ readme.md [2 KB]
+   ├─ dist/
+   │  └─ extension.js [403.39 KB]
+   └─ media/
+      ├─ emc.png [66.22 KB]
+      └─ emc.svg [6.77 KB]
+```
 
 ## [2.0.0] - May 2025
 - Add treeview - the main feature

@@ -4,6 +4,7 @@
     "Demux",
     "easymediaconverter",
     "efix",
+    "eugeneware",
     "flac",
     "Hackathon",
     "Kbps",
@@ -12,6 +13,8 @@
     "nvenc",
     "timemark",
     "treeview",
+    "vscodeignore",
+    "vsixmanifest",
     "webm",
     "webp"
   ],

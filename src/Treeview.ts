@@ -47,7 +47,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
       // If it's the Settings item, return its children
       if (element.contextValue === 'EMC_SETTINGS_ITEM') return Promise.resolve(this.getSettingsChildren())
       // If it's the Custom Quality item, return its children
-      if (element.contextValue === 'EMC_CUSTOM_QUALITY_ITEM') return Promise.resolve(this.getCustomQualityChildren())
+      if (element.contextValue === 'EMC_SETTING_QUALITY') return Promise.resolve(this.getCustomQualityChildren())
       if (element.contextValue === 'EMC_QUEUE_LABEL_ITEM') return Promise.resolve(this.getQueueChildren())
       return Promise.resolve([])
     }
@@ -96,7 +96,7 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const customQualityLabel = `Custom Quality: ${useCustomQuality ? '✔️' : '❌'}`
     const state = useCustomQuality ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None
     const customQualityItem = new TreeItem(customQualityLabel, state)
-    customQualityItem.contextValue = 'EMC_SETTING_CUSTOM_QUALITY'
+    customQualityItem.contextValue = 'EMC_SETTING_QUALITY'
     customQualityItem.iconPath = new ThemeIcon('dashboard')
     items.push(customQualityItem)
 
@@ -107,13 +107,6 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const config = workspace.getConfiguration('emc')
     const items: TreeItem[] = []
 
-    // Video quality setting
-    const videoQuality = config.get('videoQuality', 23)
-    const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
-    videoQualityItem.contextValue = 'EMC_SETTING_VIDEO_QUALITY'
-    videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
-    items.push(videoQualityItem)
-
     // Audio quality setting
     const audioQuality = config.get('audioQuality', 4)
     const audioQualityItem = new TreeItem(`Audio Quality: ${audioQuality}`, TreeItemCollapsibleState.None)
@@ -121,10 +114,23 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     audioQualityItem.iconPath = new ThemeIcon('unmute')
     items.push(audioQualityItem)
 
+    // Video quality setting
+    const videoQuality = config.get('videoQuality', 23)
+    const videoQualityItem = new TreeItem(`Video Quality: ${videoQuality}`, TreeItemCollapsibleState.None)
+    videoQualityItem.contextValue = 'EMC_SETTING_VIDEO_QUALITY'
+    videoQualityItem.iconPath = new ThemeIcon('device-camera-video')
+    items.push(videoQualityItem)
+
     return items
   }
 
   private getQueueChildren(): TreeItem[] {
+    if (this.queue.length === 0) {
+      const emptyItem = new TreeItem('Queue is empty', TreeItemCollapsibleState.None)
+      emptyItem.contextValue = 'EMC_QUEUE_EMPTY'
+      emptyItem.iconPath = new ThemeIcon('circle-slash')
+      return [emptyItem]
+    }
     return this.queue.map((file) => {
       const item = new TreeItem(file, TreeItemCollapsibleState.None)
       item.contextValue = 'EMC_TREEVIEW_ITEM'
