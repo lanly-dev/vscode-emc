@@ -5,11 +5,11 @@ import * as fs from 'fs'
 import { download } from './ffmpegFn'
 import { getFfmpegBinPath, printToChannel } from './utils'
 import { MediaFileType } from './interfaces'
-import Converter from './Converter'
-import ConverterGif from './ConverterGif'
-import ConverterImg from './ConverterImg'
-import ConverterQueue from './ConverterQueue'
-import TreeViewProvider from './Treeview'
+import Converter from './converter'
+import ConverterGif from './converterGif'
+import ConverterImg from './converterImg'
+import ConverterQueue from './converterQueue'
+import TreeViewProvider from './treeview'
 
 const { showErrorMessage, showInformationMessage } = window
 const { MP3, MP4, JPG, WAV, GIF } = MediaFileType
