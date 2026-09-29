@@ -1,10 +1,10 @@
 {
   "name": "easymediaconverter",
-  "displayName": "Easy Media Converter",
+  "displayName": "Easy Media Converter - EMC 🍰",
   "description": "Convert image, audio, and video files using ffmpeg",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
-  "version": "3.0.0",
+  "version": "3.0.1",
     "sponsor": {
     "url": "https://github.com/sponsors/lanly-dev"
   },
@@ -165,7 +165,7 @@
         {
           "id": "EMC_TREEVIEW",
           "name": "Easy Media Converter",
-          "contextualTitle": "🍰",
+          "contextualTitle": "EMC 🍰",
           "icon": "media/emc.svg"
         }
       ]
@@ -263,6 +263,7 @@
         {
           "view": "EMC_TREEVIEW",
           "command": "emc.openSettings",
+          "when": "view == EMC_TREEVIEW",
           "group": "navigation"
         }
       ],
@@ -339,21 +340,21 @@
     "@types/adm-zip": "^0.5.8",
     "@types/node": "26.x",
     "@types/tar": "^7.0.87",
-    "@types/vscode": "^1.125.0",
-    "eslint": "^10.8.0",
-    "globals": "^17.9.0",
-    "ovsx": "^1.1.0",
+    "@types/vscode": "^1.138.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "ovsx": "^1.2.0",
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0",
-    "webpack": "^5.109.2",
-    "webpack-cli": "^7.2.2"
+    "typescript-eslint": "^8.71.0",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "dependencies": {
-    "adm-zip": "^0.6.0",
-    "axios": "^1.19.0",
-    "pretty-bytes": "^7.1.1",
+    "adm-zip": "^0.6.1",
+    "axios": "^1.20.0",
+    "pretty-bytes": "^7.2.0",
     "tar": "^7.5.22"
   },
   "repository": {
