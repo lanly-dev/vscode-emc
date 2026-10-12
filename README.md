@@ -4,10 +4,10 @@ Or maybe you have stumbled upon the need to quickly convert a media file for you
 Or perhaps you need a WAV format audio file for a voice training project?\
 The answer is **YES!**
 <a href="https://marketplace.visualstudio.com/items?itemName=	lanly-dev.easymediaconverter" target="_blank">
-  <img src='https://code.visualstudio.com/favicon.ico' width='12'/>
+  <img src='https://code.visualstudio.com/favicon.ico' width='10'/>
 </a>
 <a href="https://open-vsx.org/extension/lanly-dev/easymediaconverter" target="_blank">
-  <img src='https://open-vsx.org/favicon.ico' width='11'/>
+  <img src='https://open-vsx.org/favicon.ico' width='10'/>
 </a>
 
 
@@ -31,6 +31,9 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
   - Extract audio from video by converting it to an audio format
 
 ## Release Notes
+### 3.0.1
+- Minor update
+
 ### 3.0.0
 - Add settings to treeview
 - Add Custom quality configuration

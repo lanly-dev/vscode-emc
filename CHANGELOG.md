@@ -18,6 +18,27 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Show media information
 - Time estimation for batch conversion
 
+## [3.0.1] - October 2026
+- Only show openSetting when is `EMC_TREEVIEW`
+- Change code files to 🐪case
+- webpack 5.111.1 compiled successfully in 5146 ms
+- 9 files, 183.73 KB, 1.140.0
+```
+easymediaconverter-3.0.1.vsix
+├─ [Content_Types].xml
+├─ extension.vsixmanifest
+└─ extension/
+   ├─ LICENSE.md [1.06 KB]
+   ├─ changelog.md [4.54 KB]
+   ├─ package.json [9.84 KB]
+   ├─ readme.md [2.03 KB]
+   ├─ dist/
+   │  └─ extension.js [411.55 KB]
+   └─ media/
+      ├─ emc.png [66.22 KB]
+      └─ emc.svg [6.77 KB]
+```
+
 ## [3.0.0] - August 2026
 - Improve Treeview and add settings in it
 - New activity-bar/explorer icon
@@ -29,8 +50,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Publish to ovsx
 - webpack 5.109.2 compiled successfully in 2912 ms
 - 9 files, 181.04 KB, 1.131.0, req1.125.0
-```txt
-INFO  Files included in the VSIX:
+```
 easymediaconverter-3.0.0.vsix
 ├─ [Content_Types].xml
 ├─ extension.vsixmanifest
