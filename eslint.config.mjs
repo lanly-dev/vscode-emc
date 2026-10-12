@@ -3,7 +3,7 @@ import typescriptEslint from 'typescript-eslint'
 import stylistic from '@stylistic/eslint-plugin'
 
 export default [{
-  ignores: ['dist', 'node_modules', 'test', '!**/test/scripts/'],
+  ignores: ['dist', 'node_modules', 'test', '!**/test/scripts/']
 }, {
   files: ['**/*.ts'],
   plugins: {
@@ -19,20 +19,14 @@ export default [{
     }
   },
   rules: {
-    '@typescript-eslint/naming-convention': ['warn', { selector: 'import', format: ['camelCase', 'PascalCase'] }],
-    '@stylistic/member-delimiter-style': [
-      'error',
+    '@stylistic/brace-style': ['error', '1tbs'],
+    '@stylistic/member-delimiter-style': ['error',
       {
-        multiline: {
-          delimiter: 'none',
-          requireLast: false
-        },
-        singleline: {
-          delimiter: 'comma',
-          requireLast: false
-        }
+        multiline: { delimiter: 'none', requireLast: false },
+        singleline: { delimiter: 'comma', requireLast: false }
       }
     ],
+    '@typescript-eslint/naming-convention': ['warn', { selector: 'import', format: ['camelCase', 'PascalCase'] }],
     'comma-dangle': ['error', 'never'],
     'eol-last': ['error', 'always'],
     'max-len': ['error', { code: 120 }],

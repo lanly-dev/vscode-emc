@@ -43,7 +43,9 @@ export function activate(context: ExtensionContext) {
 
     rc('emc.changeAudioQuality', changeAudioQuality),
     rc('emc.changeVideoQuality', changeVideoQuality),
-    rc('emc.openSettings', () => { commands.executeCommand('workbench.action.openSettings', 'emc') }),
+    rc('emc.openSettings', () => {
+      commands.executeCommand('workbench.action.openSettings', 'emc')
+    }),
     rc('emc.toggleCustomQuality', toggleCustomQuality),
     rc('emc.toggleGpu', toggleGpu)
   )
