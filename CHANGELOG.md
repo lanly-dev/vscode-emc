@@ -22,7 +22,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Only show openSetting when is `EMC_TREEVIEW`
 - Change code files to 🐪case
 - webpack 5.111.1 compiled successfully in 5146 ms
-- 9 files, 183.73 KB, 1.140.0
+- 9 files, 187.94 KB, 1.140.0
 ```
 easymediaconverter-3.0.1.vsix
 ├─ [Content_Types].xml
@@ -35,7 +35,7 @@ easymediaconverter-3.0.1.vsix
    ├─ dist/
    │  └─ extension.js [411.55 KB]
    └─ media/
-      ├─ emc.png [66.22 KB]
+      ├─ emc.png [70.93 KB]
       └─ emc.svg [6.77 KB]
 ```
 

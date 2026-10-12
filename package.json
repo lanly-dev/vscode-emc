@@ -5,7 +5,7 @@
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
   "version": "3.0.1",
-    "sponsor": {
+  "sponsor": {
     "url": "https://github.com/sponsors/lanly-dev"
   },
   "engines": {
