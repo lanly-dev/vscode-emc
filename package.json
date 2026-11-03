@@ -4,7 +4,7 @@
   "description": "Convert image, audio, and video files using ffmpeg",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "sponsor": {
     "url": "https://github.com/sponsors/lanly-dev"
   },
@@ -76,23 +76,23 @@
         "icon": "$(cloud-download)"
       },
       {
-        "command": "emc.convertMp3",
+        "command": "emc.ncp.convertMp3",
         "title": "EMC: Convert to mp3"
       },
       {
-        "command": "emc.convertMp4",
+        "command": "emc.ncp.convertMp4",
         "title": "EMC: Convert to mp4"
       },
       {
-        "command": "emc.convertJpg",
+        "command": "emc.ncp.convertJpg",
         "title": "EMC: Convert to jpg"
       },
       {
-        "command": "emc.convertWav",
+        "command": "emc.ncp.convertWav",
         "title": "EMC: Convert to wav"
       },
       {
-        "command": "emc.convertGif",
+        "command": "emc.ncp.convertGif",
         "title": "EMC: Convert to gif"
       },
       {
@@ -101,26 +101,26 @@
         "icon": "$(file-directory)"
       },
       {
-        "command": "emc.addToQueue",
+        "command": "emc.ncp.addToQueue",
         "title": "EMC: Add to queue"
       },
       {
-        "command": "emc.removeFromQueue",
+        "command": "emc.ncp.removeFromQueue",
         "title": "EMC: Remove from queue",
         "icon": "$(close)"
       },
       {
-        "command": "emc.clearQueue",
+        "command": "emc.ncp.clearQueue",
         "title": "EMC: Clear queue",
         "icon": "$(clear-all)"
       },
       {
-        "command": "emc.showQueueInfo",
+        "command": "emc.ncp.showQueueInfo",
         "title": "EMC: show information",
         "icon": "$(info)"
       },
       {
-        "command": "emc.startConversionQueue",
+        "command": "emc.ncp.startConversionQueue",
         "title": "EMC: start conversion queue",
         "icon": "$(run-all)"
       },
@@ -143,11 +143,6 @@
         "command": "emc.toggleCustomQuality",
         "title": "EMC: Toggle custom quality",
         "icon": "$(lightbulb)"
-      },
-      {
-        "command": "emc.toggleBinCheck",
-        "title": "EMC: Toggle binary check",
-        "icon": "$(edit)"
       },
       {
         "command": "emc.openSettings",
@@ -185,39 +180,43 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "emc.convertMp3",
+          "command": "emc.ncp.convertMp3",
           "when": "false"
         },
         {
-          "command": "emc.convertMp4",
+          "command": "emc.ncp.convertMp4",
           "when": "false"
         },
         {
-          "command": "emc.convertJpg",
+          "command": "emc.ncp.convertJpg",
           "when": "false"
         },
         {
-          "command": "emc.convertWav",
+          "command": "emc.ncp.convertWav",
           "when": "false"
         },
         {
-          "command": "emc.addToQueue",
+          "command": "emc.ncp.convertGif",
           "when": "false"
         },
         {
-          "command": "emc.removeFromQueue",
+          "command": "emc.ncp.addToQueue",
           "when": "false"
         },
         {
-          "command": "emc.clearQueue",
+          "command": "emc.ncp.removeFromQueue",
           "when": "false"
         },
         {
-          "command": "emc.showQueueInfo",
+          "command": "emc.ncp.clearQueue",
           "when": "false"
         },
         {
-          "command": "emc.startConversionQueue",
+          "command": "emc.ncp.showQueueInfo",
+          "when": "false"
+        },
+        {
+          "command": "emc.ncp.startConversionQueue",
           "when": "false"
         }
       ],
@@ -340,20 +339,20 @@
     "@types/adm-zip": "^0.6.0",
     "@types/node": "26.x",
     "@types/tar": "^7.0.87",
-    "@types/vscode": "^1.140.0",
-    "eslint": "^10.12.0",
-    "globals": "^17.13.0",
-    "ovsx": "^1.2.0",
+    "@types/vscode": "^1.144.0",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "ovsx": "^1.3.0",
     "ts-loader": "^9.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.2",
-    "webpack": "^5.111.1",
-    "webpack-cli": "^7.2.3"
+    "typescript-eslint": "^8.72.1",
+    "webpack": "^5.112.2",
+    "webpack-cli": "^7.3.1"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",
-    "axios": "^1.20.0",
+    "axios": "^1.21.0",
     "pretty-bytes": "^7.2.0",
     "tar": "^7.5.22"
   },
