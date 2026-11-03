@@ -88,12 +88,12 @@
         "title": "EMC: Convert to jpg"
       },
       {
-        "command": "emc.ncp.convertWav",
-        "title": "EMC: Convert to wav"
-      },
-      {
         "command": "emc.ncp.convertGif",
         "title": "EMC: Convert to gif"
+      },
+      {
+        "command": "emc.ncp.convertWav",
+        "title": "EMC: Convert to wav"
       },
       {
         "command": "emc.revealFfmpegBin",
@@ -192,11 +192,11 @@
           "when": "false"
         },
         {
-          "command": "emc.ncp.convertWav",
+          "command": "emc.ncp.convertGif",
           "when": "false"
         },
         {
-          "command": "emc.ncp.convertGif",
+          "command": "emc.ncp.convertWav",
           "when": "false"
         },
         {
