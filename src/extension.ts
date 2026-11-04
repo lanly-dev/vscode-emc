@@ -26,28 +26,28 @@ export function activate(context: ExtensionContext) {
   const rc = commands.registerCommand
 
   context.subscriptions.push(
+    rc('emc.download', () => download(pathToFfmpeg)),
+    rc('emc.revealFfmpegBin', revealFfmpegBin),
+    rc('emc.refreshBinCheck', () => treeViewProvider.refresh()),
+
+    rc('emc.changeAudioQuality', changeAudioQuality),
+    rc('emc.changeVideoQuality', changeVideoQuality),
+    rc('emc.openSettings', () => commands.executeCommand('workbench.action.openSettings', 'emc')),
+    rc('emc.toggleCustomQuality', toggleCustomQuality),
+    rc('emc.toggleGpu', toggleGpu),
+
     rc('emc.ncp.convertMp3', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP3)),
     rc('emc.ncp.convertMp4', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, MP4)),
     rc('emc.ncp.convertJpg', (uri: Uri) => ConverterImg.convert(pathToFfmpeg, uri, JPG)),
     rc('emc.ncp.convertGif', (uri: Uri) => ConverterGif.convert(pathToFfmpeg, uri, GIF)),
     rc('emc.ncp.convertWav', (uri: Uri) => Converter.convert(pathToFfmpeg, uri, WAV)),
 
-    rc('emc.download', () => download(pathToFfmpeg)),
-    rc('emc.revealFfmpegBin', revealFfmpegBin),
-    rc('emc.refreshBinCheck', () => treeViewProvider.refresh()),
-
     rc('emc.ncp.addToQueue', (file: Uri, files: Uri[]) => treeViewProvider.addToQueue(files)),
     rc('emc.ncp.clearQueue', () => treeViewProvider.clearQueue()),
     rc('emc.ncp.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
     rc('emc.ncp.showQueueInfo', () => treeViewProvider.showQueueInfo()),
     rc('emc.ncp.startConversionQueue', startConversionQueue),
-    rc('emc.ncp.cropMedia', (uri: Uri) => CropMedia.crop(pathToFfmpeg, uri)),
-
-    rc('emc.changeAudioQuality', changeAudioQuality),
-    rc('emc.changeVideoQuality', changeVideoQuality),
-    rc('emc.openSettings', () => commands.executeCommand('workbench.action.openSettings', 'emc')),
-    rc('emc.toggleCustomQuality', toggleCustomQuality),
-    rc('emc.toggleGpu', toggleGpu)
+    rc('emc.ncp.cropMedia', (uri: Uri) => CropMedia.crop(pathToFfmpeg, uri))
   )
 
   // TODO: this is for the batch convert file chooser

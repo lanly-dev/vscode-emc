@@ -77,6 +77,41 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "emc.revealFfmpegBin",
+        "title": "EMC: Reveal ffmpeg binary location",
+        "icon": "$(file-directory)"
+      },
+      {
+        "command": "emc.refreshBinCheck",
+        "title": "EMC: Refresh binary check",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "emc.changeAudioQuality",
+        "title": "EMC: Change audio quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.changeVideoQuality",
+        "title": "EMC: Change video quality",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "emc.openSettings",
+        "title": "EMC: Open settings",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "emc.toggleCustomQuality",
+        "title": "EMC: Toggle custom quality",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "emc.toggleGpu",
+        "title": "EMC: Toggle GPU acceleration",
+        "icon": "$(edit)"
+      },
+      {
         "command": "emc.ncp.convertMp3",
         "title": "EMC: Convert to mp3"
       },
@@ -97,23 +132,18 @@
         "title": "EMC: Convert to wav"
       },
       {
-        "command": "emc.revealFfmpegBin",
-        "title": "EMC: Reveal ffmpeg binary location",
-        "icon": "$(file-directory)"
-      },
-      {
         "command": "emc.ncp.addToQueue",
         "title": "EMC: Add to queue"
-      },
-      {
-        "command": "emc.ncp.removeFromQueue",
-        "title": "EMC: Remove from queue",
-        "icon": "$(close)"
       },
       {
         "command": "emc.ncp.clearQueue",
         "title": "EMC: Clear queue",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "emc.ncp.removeFromQueue",
+        "title": "EMC: Remove from queue",
+        "icon": "$(close)"
       },
       {
         "command": "emc.ncp.showQueueInfo",
@@ -128,36 +158,6 @@
       {
         "command": "emc.ncp.cropMedia",
         "title": "EMC: Crop media"
-      },
-      {
-        "command": "emc.changeVideoQuality",
-        "title": "EMC: Change video quality",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "emc.changeAudioQuality",
-        "title": "EMC: Change audio quality",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "emc.toggleGpu",
-        "title": "EMC: Toggle GPU acceleration",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "emc.toggleCustomQuality",
-        "title": "EMC: Toggle custom quality",
-        "icon": "$(lightbulb)"
-      },
-      {
-        "command": "emc.openSettings",
-        "title": "EMC: Open settings",
-        "icon": "$(gear)"
-      },
-      {
-        "command": "emc.refreshBinCheck",
-        "title": "EMC: Refresh binary check",
-        "icon": "$(refresh)"
       }
     ],
     "views": {
@@ -209,11 +209,11 @@
           "when": "false"
         },
         {
-          "command": "emc.ncp.removeFromQueue",
+          "command": "emc.ncp.clearQueue",
           "when": "false"
         },
         {
-          "command": "emc.ncp.clearQueue",
+          "command": "emc.ncp.removeFromQueue",
           "when": "false"
         },
         {

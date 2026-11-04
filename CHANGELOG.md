@@ -4,20 +4,20 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 
 ## [Future Works]
 - 1st/last picture extraction
-- Merging feature
 - Divide into equal duration
 - Drag and drop to queue
 - Embed sub
 - FileChooser for queue
 - Generate sub/text - connect to AudioLab
 - Integrate with Spectrogram extension
+- Merging feature
 - Modifier queue
 - Progress percentage
 - Short video format conversion
 - Show media information
 - Time estimation for batch conversion
 
-## [3.0.2] - November 2026
+## [3.0.2] - November 2026 🤖
 - Add cropMedia in menu context
 - Clean up `toggleBinCheck`
 - webpack 5.112.2 compiled successfully in 3126 ms

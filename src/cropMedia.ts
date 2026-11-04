@@ -15,7 +15,7 @@ export default class CropMedia {
   static async crop(pathToFfmpeg: string, uri?: Uri) {
     channel.show()
     let fsPath: string
-
+    // FileChooser not ncp
     if (uri?.fsPath) fsPath = uri.fsPath
     else {
       const files = await window.showOpenDialog({
