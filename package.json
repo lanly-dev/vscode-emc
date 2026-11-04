@@ -23,6 +23,7 @@
     "Image",
     "Audio",
     "Video",
+    "crop",
     "jpg",
     "gif",
     "mp3",

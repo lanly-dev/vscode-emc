@@ -21,7 +21,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Add cropMedia in menu context
 - Clean up `toggleBinCheck`
 - webpack 5.112.2 compiled successfully in 3126 ms
-- 9 files, 185.76 KB, 1.144.0
+- 9 files, 185.77 KB, 1.144.0
 ```
 easymediaconverter-3.0.2.vsix
 ├─ [Content_Types].xml
@@ -29,7 +29,7 @@ easymediaconverter-3.0.2.vsix
 └─ extension/
    ├─ LICENSE.md [1.06 KB]
    ├─ changelog.md [5.07 KB]
-   ├─ package.json [10.21 KB]
+   ├─ package.json [10.23 KB]
    ├─ readme.md [2.09 KB]
    ├─ dist/
    │  └─ extension.js [424.03 KB]
