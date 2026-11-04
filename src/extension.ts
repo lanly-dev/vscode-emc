@@ -9,6 +9,7 @@ import Converter from './converter'
 import ConverterGif from './converterGif'
 import ConverterImg from './converterImg'
 import ConverterQueue from './converterQueue'
+import CropMedia from './cropMedia'
 import TreeViewProvider from './treeview'
 
 const { showErrorMessage, showInformationMessage } = window
@@ -40,6 +41,7 @@ export function activate(context: ExtensionContext) {
     rc('emc.ncp.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
     rc('emc.ncp.showQueueInfo', () => treeViewProvider.showQueueInfo()),
     rc('emc.ncp.startConversionQueue', startConversionQueue),
+    rc('emc.ncp.cropMedia', (uri: Uri) => CropMedia.crop(pathToFfmpeg, uri)),
 
     rc('emc.changeAudioQuality', changeAudioQuality),
     rc('emc.changeVideoQuality', changeVideoQuality),

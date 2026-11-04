@@ -10,7 +10,6 @@ The answer is **YES!**
   <img src='https://open-vsx.org/favicon.ico' width='10'/>
 </a>
 
-
 This is the extension that could help you with that job, and right inside the VS Code. How 😎🆒🧊!\
 It converts supported image, audio, and video formats, using *ffmpeg*, here and there 🎉.
 
@@ -26,11 +25,15 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
   - `gif` --> `mp4` will fail if not multi-frames
   - `jpg|avi|flv|mkv|mp4|ts|webm|wmv` --> `gif`
 - Batch/Queue conversion
+- Media cropping
 
 - Other use cases:
   - Extract audio from video by converting it to an audio format
 
 ## Release Notes
+### 3.0.2
+- Add `cropMedia` feature
+
 ### 3.0.1
 - Minor update
 

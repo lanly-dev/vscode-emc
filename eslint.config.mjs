@@ -33,7 +33,7 @@ export default [{
     'no-throw-literal': 'warn',
     'no-trailing-spaces': 'error',
     'quote-props': ['error', 'as-needed'],
-    curly: ['error', 'multi-or-nest'],
+    curly: ['error', 'multi-line'],
     eqeqeq: 'error',
     indent: ['error', 2],
     quotes: ['error', 'single', { allowTemplateLiterals: true }],

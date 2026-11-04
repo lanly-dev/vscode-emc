@@ -4,19 +4,39 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 
 ## [Future Works]
 - 1st/last picture extraction
-- Connect to spectrogram
-- Crop/merging feature
+- Merging feature
 - Divide into equal duration
 - Drag and drop to queue
-- FileChooser for queue
-- Generate sub
 - Embed sub
-- Generate text - connect to lemonade
+- FileChooser for queue
+- Generate sub/text - connect to AudioLab
 - Integrate with Spectrogram extension
+- Modifier queue
 - Progress percentage
 - Short video format conversion
 - Show media information
 - Time estimation for batch conversion
+
+## [3.0.2] - November 2026
+- Add cropMedia in menu context
+- Clean up `toggleBinCheck`
+- webpack 5.112.2 compiled successfully in 3126 ms
+- 9 files, 185.76 KB, 1.144.0
+```
+easymediaconverter-3.0.2.vsix
+├─ [Content_Types].xml
+├─ extension.vsixmanifest
+└─ extension/
+   ├─ LICENSE.md [1.06 KB]
+   ├─ changelog.md [5.07 KB]
+   ├─ package.json [10.21 KB]
+   ├─ readme.md [2.09 KB]
+   ├─ dist/
+   │  └─ extension.js [424.03 KB]
+   └─ media/
+      ├─ emc.png [64.12 KB]
+      └─ emc.svg [6.77 KB]
+```
 
 ## [3.0.1] - October 2026
 - Only show openSetting when is `EMC_TREEVIEW`

@@ -80,3 +80,35 @@ export function getFormattedDate(date: Date = new Date()): string {
     String(date.getMinutes()).padStart(2, '0') +
     String(date.getSeconds()).padStart(2, '0')
 }
+
+// Parse a time like "80", "1:20", "1:20:30" or "1:20.5" into seconds
+export function parseTimeToSec(time: string): number | null {
+  const t = time.trim()
+  if (!t) return null
+  // Plain seconds (e.g. 80 or 80.5)
+  if (/^\d+(\.\d+)?$/.test(t)) return Number(t)
+  const parts = t.split(':')
+  if (parts.length === 2 || parts.length === 3) {
+    if (!parts.every((p) => /^\d+(\.\d+)?$/.test(p))) return null
+    const [a, b, c] = parts.map(Number)
+    if (parts.length === 2) {
+      // M:SS
+      if (b >= 60) return null
+      return a * 60 + b
+    }
+    // H:MM:SS
+    if (b >= 60 || c >= 60) return null
+    return a * 3600 + b * 60 + c
+  }
+  return null
+}
+
+// Parse a range input like "1:20 - 2:10" into { startSec, endSec }
+export function parseTimeRange(input: string): { startSec: number, endSec: number } | null {
+  const parts = input.trim().split(/\s*-\s*/)
+  if (parts.length !== 2) return null
+  const startSec = parseTimeToSec(parts[0])
+  const endSec = parseTimeToSec(parts[1])
+  if (startSec === null || endSec === null) return null
+  return { startSec, endSec }
+}

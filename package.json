@@ -4,12 +4,12 @@
   "description": "Convert image, audio, and video files using ffmpeg",
   "homepage": "https://github.com/lanly-dev/vscode-emc",
   "publisher": "lanly-dev",
-  "version": "3.1.0",
+  "version": "3.0.2",
   "sponsor": {
     "url": "https://github.com/sponsors/lanly-dev"
   },
   "engines": {
-    "vscode": "^1.140.0"
+    "vscode": "^1.144.0"
   },
   "categories": [
     "Other"
@@ -125,6 +125,10 @@
         "icon": "$(run-all)"
       },
       {
+        "command": "emc.ncp.cropMedia",
+        "title": "EMC: Crop media"
+      },
+      {
         "command": "emc.changeVideoQuality",
         "title": "EMC: Change video quality",
         "icon": "$(edit)"
@@ -228,32 +232,37 @@
       ],
       "EMC_SUBMENU": [
         {
-          "command": "emc.convertJpg",
+          "command": "emc.ncp.convertJpg",
           "when": "resourceExtname =~ /\\.(gif|jpg|jpeg|png|webp)$/",
           "group": "1_convert@1"
         },
         {
-          "command": "emc.convertMp3",
+          "command": "emc.ncp.convertMp3",
           "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "group": "1_convert@2"
         },
         {
-          "command": "emc.convertWav",
+          "command": "emc.ncp.convertWav",
           "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "group": "1_convert@3"
         },
         {
-          "command": "emc.convertMp4",
+          "command": "emc.ncp.convertMp4",
           "when": "resourceExtname =~ /\\.(avi|flv|gif|mkv|mp4|ts|webm|wmv)$/",
           "group": "2_video@1"
         },
         {
-          "command": "emc.convertGif",
+          "command": "emc.ncp.convertGif",
           "when": "resourceExtname =~ /\\.(jpg|avi|flv|mkv|mp4|ts|webm|webp|wmv)$/",
           "group": "2_video@2"
         },
         {
-          "command": "emc.addToQueue",
+          "command": "emc.ncp.cropMedia",
+          "when": "resourceExtname =~ /\\.(ape|flac|mp3|wav|wma|m4a|aac|ogg|avi|flv|mkv|mp4|ts|webm|wmv|mov)$/",
+          "group": "3_crop@1"
+        },
+        {
+          "command": "emc.ncp.addToQueue",
           "when": "resourceExtname =~ /\\.(jpg|jpeg|png|webp|ape|flac|mp3|wav|wma|avi|flv|mkv|mp4|ts|webm|wmv)$/",
           "group": "4_queue@1"
         }
@@ -268,7 +277,7 @@
       ],
       "view/item/context": [
         {
-          "command": "emc.removeFromQueue",
+          "command": "emc.ncp.removeFromQueue",
           "when": "viewItem == EMC_TREEVIEW_ITEM",
           "group": "inline"
         },
@@ -308,17 +317,17 @@
           "group": "inline@2"
         },
         {
-          "command": "emc.clearQueue",
+          "command": "emc.ncp.clearQueue",
           "group": "inline",
           "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_ITEM_COUNT > 0 && !EMC_QUEUE_RUNNING"
         },
         {
-          "command": "emc.showQueueInfo",
+          "command": "emc.ncp.showQueueInfo",
           "group": "inline",
           "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_ITEM_COUNT > 0"
         },
         {
-          "command": "emc.startConversionQueue",
+          "command": "emc.ncp.startConversionQueue",
           "group": "inline",
           "when": "viewItem == EMC_QUEUE_LABEL_ITEM && EMC_QUEUE_CONVERTIBLE && !EMC_QUEUE_RUNNING"
         }
