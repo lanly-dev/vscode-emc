@@ -12,7 +12,7 @@ const MEDIA_EXT = /\.(mp3|wav|m4a|aac|flac|ogg|wma|ape|mp4|mkv|avi|mov|webm|wmv|
 
 export default class CropMedia {
 
-  static async crop(pathToFfmpeg: string, uri?: Uri) {
+  static async crop(pathToFfmpeg: string, uri?: Uri, rangeInput?: string) {
     channel.show()
     let fsPath: string
     // FileChooser not ncp
@@ -50,9 +50,12 @@ export default class CropMedia {
       return
     }
 
-    // Ask user for the crop range
+    // Ask user for the crop range — unless the caller already supplied one
+    // (e.g. another extension invoking the command with a pre-built range
+    // string); a supplied range skips the prompt but is parsed and validated
+    // exactly the same way below.
     const hint = `0:00 - ${this.formatDuration(durationSec)}`
-    const input = await window.showInputBox({
+    const input = rangeInput ?? await window.showInputBox({
       prompt: 'Enter crop range (e.g. 1:20 - 2:10)',
       value: hint,
       validateInput: (value) => {
@@ -67,7 +70,11 @@ export default class CropMedia {
     })
     if (!input) return
 
-    const range = parseTimeRange(input)!
+    const range = parseTimeRange(input)
+    if (!range) {
+      showErrorMessage('Invalid crop range. Use format MM:SS - MM:SS (e.g. 1:20 - 2:10)')
+      return
+    }
     if (range.startSec < 0 || range.endSec > durationSec || range.startSec >= range.endSec) {
       showErrorMessage(`Range must be within 0 - ${this.formatDuration(durationSec)} and start < end`)
       return

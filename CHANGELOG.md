@@ -17,6 +17,10 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Show media information
 - Time estimation for batch conversion
 
+## [3.1.0] - November 2026 🤖
+### Added
+- `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can crop non-interactively; the interactive prompt is skipped when a range is supplied, with the same validation applied.
+
 ## [3.0.2] - November 2026 🤖
 - Add cropMedia in menu context
 - Clean up `toggleBinCheck`
