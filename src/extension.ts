@@ -47,7 +47,7 @@ export function activate(context: ExtensionContext) {
     rc('emc.ncp.removeFromQueue', (targetItem: TreeItem) => treeViewProvider.removeFromQueue(targetItem)),
     rc('emc.ncp.showQueueInfo', () => treeViewProvider.showQueueInfo()),
     rc('emc.ncp.startConversionQueue', startConversionQueue),
-    rc('emc.ncp.cropMedia', (uri: Uri, range?: string) => CropMedia.crop(pathToFfmpeg, uri, range))
+    rc('emc.ncp.cropMedia', (uri: Uri, files: Uri[], range?: string) => CropMedia.crop(pathToFfmpeg, uri, range))
   )
 
   // TODO: this is for the batch convert file chooser

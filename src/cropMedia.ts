@@ -15,9 +15,21 @@ export default class CropMedia {
   static async crop(pathToFfmpeg: string, uri?: Uri, rangeInput?: string) {
     channel.show()
     let fsPath: string
-    // FileChooser not ncp
-    if (uri?.fsPath) fsPath = uri.fsPath
-    else {
+
+    // Validate ffmpeg binary exists before doing anything
+    if (!fs.existsSync(pathToFfmpeg)) {
+      const msg = 'ffmpeg binary not found. Run "EMC: Download ffmpeg" first.'
+      showErrorMessage(msg)
+      printToChannel(msg)
+      return
+    }
+
+    // When invoked from the Explorer context menu, VS Code passes the file Uri.
+    if (uri?.fsPath) {
+      fsPath = uri.fsPath
+      printToChannel(`Crop media (context menu): ${fsPath}`)
+    } else {
+      // No uri provided — fall back to interactive file chooser
       const files = await window.showOpenDialog({
         canSelectFiles: true,
         canSelectFolders: false,
@@ -32,6 +44,7 @@ export default class CropMedia {
       })
       if (!files?.[0]) return
       fsPath = files[0].fsPath
+      printToChannel(`Crop media (file picker): ${fsPath}`)
     }
 
     if (!fs.existsSync(fsPath)) {
@@ -43,54 +56,60 @@ export default class CropMedia {
       return
     }
 
-    // Probe media duration via ffmpeg
-    const durationSec = await this.getDuration(pathToFfmpeg, fsPath)
-    if (durationSec === null) {
-      showErrorMessage('Could not read media duration')
-      return
-    }
-
-    // Ask user for the crop range — unless the caller already supplied one
-    // (e.g. another extension invoking the command with a pre-built range
-    // string); a supplied range skips the prompt but is parsed and validated
-    // exactly the same way below.
-    const hint = `0:00 - ${this.formatDuration(durationSec)}`
-    const input = rangeInput ?? await window.showInputBox({
-      prompt: 'Enter crop range (e.g. 1:20 - 2:10)',
-      value: hint,
-      validateInput: (value) => {
-        const range = parseTimeRange(value)
-        if (!range) return 'Use format MM:SS - MM:SS (e.g. 1:20 - 2:10)'
-        if (range.startSec >= range.endSec) return 'Start time must be before end time'
-        if (range.startSec < 0 || range.endSec > durationSec) {
-          return `Range is outside media duration (0 - ${this.formatDuration(durationSec)})`
-        }
-        return null
+    try {
+      // Probe media duration via ffmpeg
+      const durationSec = await this.getDuration(pathToFfmpeg, fsPath)
+      if (durationSec === null) {
+        showErrorMessage('Could not read media duration')
+        return
       }
-    })
-    if (!input) return
 
-    const range = parseTimeRange(input)
-    if (!range) {
-      showErrorMessage('Invalid crop range. Use format MM:SS - MM:SS (e.g. 1:20 - 2:10)')
-      return
+      // Ask user for the crop range — unless the caller already supplied one
+      // (e.g. another extension invoking the command with a pre-built range
+      // string); a supplied range skips the prompt but is parsed and validated
+      // exactly the same way below.
+      const hint = `0:00 - ${this.formatDuration(durationSec)}`
+      const input = rangeInput ?? await window.showInputBox({
+        prompt: 'Enter crop range (e.g. 1:20 - 2:10)',
+        value: hint,
+        validateInput: (value) => {
+          const range = parseTimeRange(value)
+          if (!range) return 'Use format MM:SS - MM:SS (e.g. 1:20 - 2:10)'
+          if (range.startSec >= range.endSec) return 'Start time must be before end time'
+          if (range.startSec < 0 || range.endSec > durationSec) {
+            return `Range is outside media duration (0 - ${this.formatDuration(durationSec)})`
+          }
+          return null
+        }
+      })
+      if (!input) return
+
+      const range = parseTimeRange(input)
+      if (!range) {
+        showErrorMessage('Invalid crop range. Use format MM:SS - MM:SS (e.g. 1:20 - 2:10)')
+        return
+      }
+      if (range.startSec < 0 || range.endSec > durationSec || range.startSec >= range.endSec) {
+        showErrorMessage(`Range must be within 0 - ${this.formatDuration(durationSec)} and start < end`)
+        return
+      }
+
+      // Output file keeps the same extension, with a -cropped suffix
+      const ext = path.extname(fsPath)
+      const base = path.basename(fsPath, ext)
+      const dir = path.dirname(fsPath)
+      const outFile = path.join(dir, `${base}-cropped${ext}`)
+
+      await this.runCrop(pathToFfmpeg, fsPath, outFile, range.startSec, range.endSec)
+
+      const msg = `Cropped: ${path.basename(outFile)}`
+      printToChannel(msg)
+      showInformationMessage(msg)
+    } catch (err: any) {
+      const msg = `Crop failed: ${err?.message ?? String(err)}`
+      showErrorMessage(msg)
+      printToChannel(msg)
     }
-    if (range.startSec < 0 || range.endSec > durationSec || range.startSec >= range.endSec) {
-      showErrorMessage(`Range must be within 0 - ${this.formatDuration(durationSec)} and start < end`)
-      return
-    }
-
-    // Output file keeps the same extension, with a -cropped suffix
-    const ext = path.extname(fsPath)
-    const base = path.basename(fsPath, ext)
-    const dir = path.dirname(fsPath)
-    const outFile = path.join(dir, `${base}-cropped${ext}`)
-
-    await this.runCrop(pathToFfmpeg, fsPath, outFile, range.startSec, range.endSec)
-
-    const msg = `Cropped: ${path.basename(outFile)}`
-    printToChannel(msg)
-    showInformationMessage(msg)
   }
 
   // Read duration (seconds) from ffmpeg -i stderr
