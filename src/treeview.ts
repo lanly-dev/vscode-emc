@@ -1,6 +1,7 @@
 import { commands, QuickPickItem, window, workspace, ThemeIcon } from 'vscode'
 import { Event, EventEmitter, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from 'vscode'
 import { MediaFileType } from './interfaces'
+import { spawnSync } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
@@ -13,16 +14,45 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
 
   public queue: Uri[] = []
   public isBinExisting: boolean = false
+  public ffmpegVersion: string | null = null
 
   constructor(public ffmpegPath: string) {
     this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.getFfmpegVersion()
     this.updateBinStatus()
   }
 
   refresh(): void {
     this.isBinExisting = fs.existsSync(this.ffmpegPath)
+    this.getFfmpegVersion()
     this.updateBinStatus()
     this._onDidChangeTreeData.fire()
+  }
+
+  private getFfmpegVersion(): void {
+    if (!fs.existsSync(this.ffmpegPath)) {
+      this.ffmpegVersion = null
+      return
+    }
+    try {
+      const result = spawnSync(this.ffmpegPath, ['-version'], { encoding: 'utf8', maxBuffer: 1024 * 1024 })
+      if (result.status === 0 && result.stdout) {
+        const firstLine = result.stdout.split('\n')[0]
+        // Example: "ffmpeg version 7.0.1 Copyright (c) ..."
+        // Example: "ffmpeg version N-125907-ga7e72069f1-20260802 Copyright ..."
+        const match = firstLine.match(/ffmpeg version (\S+)/)
+        if (match) {
+          let ver = match[1]
+          // Strip build metadata after the version for snapshot builds:
+          // "N-125907-ga7e72069f1-20260802" -> keep "N-125907"
+          const snap = ver.match(/^(N-\d+)/)
+          if (snap) ver = snap[1]
+          this.ffmpegVersion = ver
+        } else this.ffmpegVersion = 'unknown'
+      } else this.ffmpegVersion = 'unknown'
+    } catch {
+      this.ffmpegVersion = null
+    }
   }
 
   private updateItemCount(): void {
@@ -75,10 +105,10 @@ export default class TreeViewProvider implements TreeDataProvider<TreeItem> {
     const items: TreeItem[] = []
 
     // Bin check setting
-    const binCheckItem = new TreeItem(
-      `Bin presents: ${this.isBinExisting ? '✔️' : '❌'}`,
-      TreeItemCollapsibleState.None
-    )
+    const binLabel = this.ffmpegVersion
+      ? `Bin version: ${this.ffmpegVersion}`
+      : `Bin: ${this.isBinExisting ? 'present ✔️' : 'missing ❌'}`
+    const binCheckItem = new TreeItem(binLabel, TreeItemCollapsibleState.None)
     binCheckItem.contextValue = 'EMC_SETTING_BIN_CHECK'
     binCheckItem.iconPath = new ThemeIcon(this.isBinExisting ? 'check' : 'warning')
     // Add download command when binary is missing
