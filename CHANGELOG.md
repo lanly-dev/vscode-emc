@@ -5,6 +5,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 ## [Future Works]
 - 1st/last picture extraction
 - Divide into equal duration
+- Download binary button in toast
 - Drag and drop to queue
 - Embed sub
 - FileChooser for queue
@@ -14,14 +15,31 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Modifier queue
 - Progress percentage
 - Short video format conversion
+- Show ffmpeg version
 - Show media information
 - Time estimation for batch conversion
 
-## [3.1.0] - November 2026 🤖
-### Added
-- `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can crop non-interactively; the interactive prompt is skipped when a range is supplied, with the same validation applied.
+## [3.1.0] - November 20th, 2026
+- Make `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can crop non-interactively; the interactive prompt is skipped when a range is supplied, with the same validation applied.
+- webpack 5.113.0 compiled successfully in 3002 ms
+- 9 files, 186.19 KB, 1.147.0, req1.107.0
+```
+easymediaconverter-3.1.0.vsix
+├─ [Content_Types].xml
+├─ extension.vsixmanifest
+└─ extension/
+   ├─ LICENSE.md [1.06 KB]
+   ├─ changelog.md [5.9 KB]
+   ├─ package.json [10.22 KB]
+   ├─ readme.md [2.09 KB]
+   ├─ dist/
+   │  └─ extension.js [424.59 KB]
+   └─ media/
+      ├─ emc.png [64.12 KB]
+      └─ emc.svg [6.77 KB]
+```
 
-## [3.0.2] - November 2026 🤖
+## [3.0.2] - November 3rd, 2026 🤖
 - Add cropMedia in menu context
 - Clean up `toggleBinCheck`
 - webpack 5.112.2 compiled successfully in 3126 ms
@@ -110,7 +128,7 @@ easymediaconverter-3.0.0.vsix
 ## Reference
 - https://code.visualstudio.com/api/extension-guides/tree-view
 
-## [1.1.0] - March 2025
+## [1.1.0] - March 28th, 2025
 - Add image conversion feature: convert `jpg|jpeg|png|webp` to `jpg`
 - Add `webm` support
 - Enable GPU acceleration with the `h264-nvenc` option
@@ -123,7 +141,7 @@ easymediaconverter-3.0.0.vsix
   - Converting from `svg` to `jpg`: bundling dependencies failed
   - Converting from `jpg` or other formats to `svg`: works well for small images but takes a really long time for large images
 
-## [1.0.0] - March 2025
+## [1.0.0] - March 4th, 2025
 - Add support `ape|flac|ts|wav`
 - Add cancellable button
 - ffmpeg 6.0
