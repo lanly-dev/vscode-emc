@@ -4,7 +4,7 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
-import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg, ensureFfmpegBinary } from './utils'
+import { channel, ensureFfmpegBinary, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg } from './utils'
 import { MediaFileType } from './interfaces'
 
 const { showInformationMessage } = window
@@ -16,6 +16,7 @@ export default class ConverterGif {
     channel.show()
     const result = await ensureFfmpegBinary(pathToFfmpeg)
     if (result === 'DISMISSED' || result === 'DOWNLOADING') return
+
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

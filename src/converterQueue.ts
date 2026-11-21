@@ -4,10 +4,10 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 import pb from 'pretty-bytes'
+
 import {
-  channel, createDir, fmtMSS, fmtTimeLeft, getFormattedDate,
-  getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg,
-  ensureFfmpegBinary
+  channel, createDir, ensureFfmpegBinary, fmtMSS, fmtTimeLeft, getFormattedDate, getOutDirName, getWorkspacePath,
+  printToChannel, round, showPrintErrorMsg
 } from './utils'
 import { MediaFileType, ConversionResult } from './interfaces'
 const { showInformationMessage } = window

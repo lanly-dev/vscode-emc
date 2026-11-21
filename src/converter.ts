@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
 import {
-  channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg, ensureFfmpegBinary
+  channel, ensureFfmpegBinary, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg
 } from './utils'
 import { MediaFileType } from './interfaces'
 
@@ -17,6 +17,7 @@ export default class Converter {
     channel.show()
     const result = await ensureFfmpegBinary(pathToFfmpeg)
     if (result === 'DISMISSED' || result === 'DOWNLOADING') return
+
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

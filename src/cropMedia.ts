@@ -3,7 +3,7 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 
-import { channel, parseTimeRange, printToChannel, showPrintErrorMsg } from './utils'
+import { channel, ensureFfmpegBinary, parseTimeRange, printToChannel } from './utils'
 
 const { showErrorMessage, showInformationMessage } = window
 
@@ -14,16 +14,10 @@ export default class CropMedia {
 
   static async crop(pathToFfmpeg: string, uri?: Uri, rangeInput?: string) {
     channel.show()
+    const result = await ensureFfmpegBinary(pathToFfmpeg)
+    if (result === 'DISMISSED' || result === 'DOWNLOADING') return
+
     let fsPath: string
-
-    // Validate ffmpeg binary exists before doing anything
-    if (!fs.existsSync(pathToFfmpeg)) {
-      const msg = 'ffmpeg binary not found. Run "EMC: Download ffmpeg" first.'
-      showErrorMessage(msg)
-      printToChannel(msg)
-      return
-    }
-
     // When invoked from the Explorer context menu, VS Code passes the file Uri.
     if (uri?.fsPath) {
       fsPath = uri.fsPath
