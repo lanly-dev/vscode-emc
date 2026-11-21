@@ -17,7 +17,8 @@ export default class ConverterQueue {
 
   static async convert(pathToFfmpeg: string, files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
-    if (!ensureFfmpegBinary(pathToFfmpeg)) {
+    const result = await ensureFfmpegBinary(pathToFfmpeg)
+    if (result === 'DISMISSED' || result === 'DOWNLOADING') {
       await commands.executeCommand('setContext', 'EMC_QUEUE_RUNNING', false)
       return
     }

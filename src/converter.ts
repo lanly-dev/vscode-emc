@@ -13,7 +13,8 @@ export default class Converter {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
-    if (!ensureFfmpegBinary(pathToFfmpeg)) return
+    const result = await ensureFfmpegBinary(pathToFfmpeg)
+    if (result === 'DISMISSED' || result === 'DOWNLOADING') return
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

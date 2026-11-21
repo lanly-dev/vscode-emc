@@ -12,9 +12,10 @@ const { showInformationMessage } = window
 export default class ConverterGif {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
-    console.log(`Converting ${fsPath} to ${type}`)
+    // console.log(`Converting ${fsPath} to ${type}`)
     channel.show()
-    if (!ensureFfmpegBinary(pathToFfmpeg)) return
+    const result = await ensureFfmpegBinary(pathToFfmpeg)
+    if (result === 'DISMISSED' || result === 'DOWNLOADING') return
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

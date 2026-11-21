@@ -1,5 +1,5 @@
 import { join, resolve } from 'path'
-import { Uri, window, workspace } from 'vscode'
+import { Uri, window, workspace, commands } from 'vscode'
 import { existsSync } from 'fs'
 import { MediaFileType } from './interfaces'
 const { createOutputChannel, showErrorMessage } = window
@@ -72,23 +72,25 @@ export function getFfmpegBinPath(extensionPath: string): string {
   return pathToFfmpeg
 }
 
-const MSG_FFMPEG_MISSING = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
-const MSG_ABORTED = 'Action aborted'
+const MSG_FFMPEG_MISSING = 'The ffmpeg binary is not found'
+export const MSG_ABORTED = 'Action aborted'
+export const ITEM_DOWNLOAD = 'Download ffmpeg'
 
 /**
- * Checks whether the ffmpeg binary exists. Shows a clear error message and
- * returns `false` if it is missing, so callers can abort early instead of
- * crashing with a raw ENOENT spawn error.
+ * Checks whether the ffmpeg binary exists. If missing, shows an error toast
+ * with a "Download ffmpeg" button. Clicking the button triggers the
+ * `emc.download` command automatically.
  */
-export function ensureFfmpegBinary(pathToFfmpeg: string): boolean {
-  if (!existsSync(pathToFfmpeg)) {
-    showErrorMessage(MSG_FFMPEG_MISSING)
-    showErrorMessage(MSG_ABORTED)
-    printToChannel(MSG_FFMPEG_MISSING)
-    printToChannel(MSG_ABORTED)
-    return false
+export async function ensureFfmpegBinary(pathToFfmpeg: string): Promise<'EXISTS' | 'DOWNLOADING' | 'DISMISSED'> {
+  if (existsSync(pathToFfmpeg)) return 'EXISTS'
+  const result = await showErrorMessage(MSG_FFMPEG_MISSING, ITEM_DOWNLOAD)
+  printToChannel(MSG_FFMPEG_MISSING)
+  printToChannel(MSG_ABORTED)
+  if (result === ITEM_DOWNLOAD) {
+    await commands.executeCommand('emc.download')
+    return 'DOWNLOADING'
   }
-  return true
+  return 'DISMISSED'
 }
 
 export function getFormattedDate(date: Date = new Date()): string {
