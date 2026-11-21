@@ -4,7 +4,9 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
-import { channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg, ensureFfmpegBinary } from './utils'
+import {
+  channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg, ensureFfmpegBinary
+} from './utils'
 import { MediaFileType } from './interfaces'
 
 const { showInformationMessage } = window

@@ -31,11 +31,14 @@ It converts supported image, audio, and video formats, using *ffmpeg*, here and 
   - Extract audio from video by converting it to an audio format
 
 ## Release Notes
+### 3.1.0
+- Bugfix and minor updates
+
 ### 3.0.2
 - Add `cropMedia` feature
 
 ### 3.0.1
-- Minor update
+- Minor updates
 
 ### 3.0.0
 - Add settings to treeview

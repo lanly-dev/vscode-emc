@@ -5,11 +5,11 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 ## [Future Works]
 - 1st/last picture extraction
 - Divide into equal duration
-- Download binary button in toast
 - Download official ffmpeg
 - Drag and drop to queue
 - Embed sub
 - FileChooser for queue
+- Global storage
 - Generate sub/text - connect to AudioLab
 - Integrate with Spectrogram extension
 - Merging feature
@@ -20,21 +20,23 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Time estimation for batch conversion
 
 ## [3.1.0] - November 20th, 2026
-- Make `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can crop non-interactively; the interactive prompt is skipped when a range is supplied, with the same validation applied.
-- Show ffmpeg version
+- Make `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can invoke it non-interactively
+- Show ffmpeg version - see notes
+- Bugfix missing binary error invoking commands after deleted it
+- Add download button on missing notification
 - webpack 5.113.0 compiled successfully in 3002 ms
-- 9 files, 186.19 KB, 1.147.0, req1.107.0
+- 9 files, 186.55 KB, 1.147.0, req1.107.0
 ```
 easymediaconverter-3.1.0.vsix
 ├─ [Content_Types].xml
 ├─ extension.vsixmanifest
 └─ extension/
    ├─ LICENSE.md [1.06 KB]
-   ├─ changelog.md [5.9 KB]
+   ├─ changelog.md [6.1 KB]
    ├─ package.json [10.22 KB]
-   ├─ readme.md [2.09 KB]
+   ├─ readme.md [2.13 KB]
    ├─ dist/
-   │  └─ extension.js [424.59 KB]
+   │  └─ extension.js [425.48 KB]
    └─ media/
       ├─ emc.png [64.12 KB]
       └─ emc.svg [6.77 KB]
