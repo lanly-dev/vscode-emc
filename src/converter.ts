@@ -4,7 +4,7 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
-import { channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg } from './utils'
+import { channel, fmtMSS, fmtTimeLeft, getOutFile, printToChannel, round, showPrintErrorMsg, ensureFfmpegBinary } from './utils'
 import { MediaFileType } from './interfaces'
 
 const { showInformationMessage } = window
@@ -13,6 +13,7 @@ export default class Converter {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     channel.show()
+    if (!ensureFfmpegBinary(pathToFfmpeg)) return
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

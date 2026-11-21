@@ -6,7 +6,8 @@ import * as path from 'path'
 import pb from 'pretty-bytes'
 import {
   channel, createDir, fmtMSS, fmtTimeLeft, getFormattedDate,
-  getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg
+  getOutDirName, getWorkspacePath, printToChannel, round, showPrintErrorMsg,
+  ensureFfmpegBinary
 } from './utils'
 import { MediaFileType, ConversionResult } from './interfaces'
 const { showInformationMessage } = window
@@ -16,6 +17,10 @@ export default class ConverterQueue {
 
   static async convert(pathToFfmpeg: string, files: Uri[], type: MediaFileType): Promise<void> {
     channel.show()
+    if (!ensureFfmpegBinary(pathToFfmpeg)) {
+      await commands.executeCommand('setContext', 'EMC_QUEUE_RUNNING', false)
+      return
+    }
 
     const wsPath = getWorkspacePath()
     if (!wsPath) {

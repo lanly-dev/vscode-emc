@@ -4,25 +4,17 @@ import { spawn } from 'child_process'
 import * as fs from 'fs'
 import pb from 'pretty-bytes'
 
-import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg } from './utils'
+import { channel, fmtMSS, getOutFile, printToChannel, showPrintErrorMsg, ensureFfmpegBinary } from './utils'
 import { MediaFileType } from './interfaces'
 
 const { showInformationMessage } = window
-const MSG = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
 
 export default class ConverterGif {
 
   static async convert(pathToFfmpeg: string, { fsPath, path }: Uri, type: MediaFileType) {
     console.log(`Converting ${fsPath} to ${type}`)
     channel.show()
-    if (!fs.existsSync(pathToFfmpeg)) {
-      const abortMsg = 'Converting action aborted'
-      showInformationMessage(MSG)
-      showInformationMessage(abortMsg)
-      printToChannel(MSG)
-      printToChannel(abortMsg)
-      return
-    }
+    if (!ensureFfmpegBinary(pathToFfmpeg)) return
     try {
       const inputSize = fs.statSync(fsPath).size
       printToChannel(`File input: ${fsPath} - size: ${pb(inputSize)}`)

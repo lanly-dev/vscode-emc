@@ -6,6 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - 1st/last picture extraction
 - Divide into equal duration
 - Download binary button in toast
+- Download official ffmpeg
 - Drag and drop to queue
 - Embed sub
 - FileChooser for queue
@@ -15,12 +16,12 @@ Check [Keep a Changelog](http://keepachangelog.com) for recommendations on how t
 - Modifier queue
 - Progress percentage
 - Short video format conversion
-- Show ffmpeg version
 - Show media information
 - Time estimation for batch conversion
 
 ## [3.1.0] - November 20th, 2026
 - Make `emc.ncp.cropMedia` accepts an optional pre-built range argument (`M:SS - M:SS`) so other extensions (e.g. Audio Lab) can crop non-interactively; the interactive prompt is skipped when a range is supplied, with the same validation applied.
+- Show ffmpeg version
 - webpack 5.113.0 compiled successfully in 3002 ms
 - 9 files, 186.19 KB, 1.147.0, req1.107.0
 ```
@@ -38,6 +39,9 @@ easymediaconverter-3.1.0.vsix
       ├─ emc.png [64.12 KB]
       └─ emc.svg [6.77 KB]
 ```
+
+### Notes
+- It turns out that emc download nightly version of ffmpeg instead official one, so the version schema would look not like the ones I expected
 
 ## [3.0.2] - November 3rd, 2026 🤖
 - Add cropMedia in menu context

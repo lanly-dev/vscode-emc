@@ -72,6 +72,25 @@ export function getFfmpegBinPath(extensionPath: string): string {
   return pathToFfmpeg
 }
 
+const MSG_FFMPEG_MISSING = 'The ffmpeg binary is not found, please download it by running the `EMC: Download ffmpeg` command'
+const MSG_ABORTED = 'Action aborted'
+
+/**
+ * Checks whether the ffmpeg binary exists. Shows a clear error message and
+ * returns `false` if it is missing, so callers can abort early instead of
+ * crashing with a raw ENOENT spawn error.
+ */
+export function ensureFfmpegBinary(pathToFfmpeg: string): boolean {
+  if (!existsSync(pathToFfmpeg)) {
+    showErrorMessage(MSG_FFMPEG_MISSING)
+    showErrorMessage(MSG_ABORTED)
+    printToChannel(MSG_FFMPEG_MISSING)
+    printToChannel(MSG_ABORTED)
+    return false
+  }
+  return true
+}
+
 export function getFormattedDate(date: Date = new Date()): string {
   return date.getFullYear() +
     String(date.getMonth() + 1).padStart(2, '0') +
